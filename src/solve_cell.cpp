@@ -1,6 +1,7 @@
 #include <a_star.h>
 #include <maze.h>
-#include <robotPose.h>
+//#include <robotPose.h>
+#include <point.h>
 
 using namespace std;
 using namespace ecn;
@@ -28,21 +29,21 @@ int main( int argc, char **argv )
 
     // initial and goal positions as Position's
 
-    Point start_point = Point::maze.start();
-    Point end_point = Point::maze.end();
+    Point start_point = Point::begin();
+    Point end_point = Point::end();
 
-    Position start_position(start_point, theta_start); 
-    Position goal_position(end_point, theta_end);
+    // Position start_position(start_point, theta_start); 
+    // Position goal_position(end_point, theta_end);
 
 
-    RobotPose start_robotPose(lin_vel_start,ang_vel_start, start_position); 
-    RobotPose goal_robotPose(lin_vel_end,ang_vel_end, goal_position);
+    // RobotPose start_robotPose(lin_vel_start,ang_vel_start, start_position); 
+    // RobotPose goal_robotPose(lin_vel_end,ang_vel_end, goal_position);
 
-    // call A* algorithm
-    ecn::Astar(start_robotPose, goal_robotPose);
+    // // call A* algorithm
+    // ecn::Astar(start_robotPose, goal_robotPose);
 
     // save final image
-    Point::maze.saveSolution("cell");
+    // Point::maze.saveSolution("cell");
     cv::waitKey(0);
 
 }

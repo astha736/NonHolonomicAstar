@@ -4,18 +4,17 @@
 #include <cstdlib>
 #include <iostream>
 #include <math.h>
+#include <maze.h>
 
 namespace ecn
 {
 
-/*  Forward declaration, as Maze and Point are both interdependent. 
-    Check: https://stackoverflow.com/questions/16663207/c-how-to-create-classes-that-are-interdependent 
-*/
-class Maze;
-
 class Point
 {
 public:
+
+    int x, y;
+    static Maze maze;
 
     Point() {}
     Point(int _x, int _y): x(_x), y(_y) {}
@@ -26,14 +25,6 @@ public:
         x = p.x;
         y = p.y;
     }
-
-    // prints the grid with all positions from parent
-    virtual void print(const Point &parent);
-
-    void start();
-    void test();
-
-    virtual void show(bool closed, const Point &parent);
 
     friend std::ostream& operator<<(std::ostream& out, const Point& p)
     {
@@ -58,8 +49,25 @@ public:
         return 1.5*sqrt((x-goal.x)*(x-goal.x) + (y-goal.y)*(y-goal.y));
     }
 
-    int x, y;
-    static Maze maze;
+    bool isFree(){
+          if(maze.isFree(x, y)){
+              return true;
+          }
+          return false;
+       }
+        // prints the grid with all positions from parent
+
+
+    virtual void print(const Point &parent);
+
+    void start(); // Used inside the maze.h code 
+    //void test(); // This function was not being used anywhere 
+
+    virtual void show(bool closed, const Point &parent);
+
+    static Point begin();
+    static Point end();
+        
 };
 
 }

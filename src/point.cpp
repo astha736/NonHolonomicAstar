@@ -7,16 +7,9 @@ using std::max;
 namespace ecn
 {
 
-/*
-
-Check: https://stackoverflow.com/questions/3409428/putting-class-static-members-definition-into-cpp-file-technical-limitation
-
-You've only declared the static member in the .h file. 
-The linker needs to be able to find exactly one definition of that static member in the object files it links together. 
-You can't put the definition in the .h file, that would generate multiple definitions.
-*/
-
-Maze Point::maze; // otherwise an error undefined reference to `ecn::Point::maze'
+// A Static Variable defined outside the class definition
+// otherwise an error undefined reference to `ecn::Point::maze'
+Maze Point::maze; 
 
 // final print
 // maze deals with the color, just tell the points
@@ -39,7 +32,7 @@ void Point::print(const Point &parent)
     maze.passThrough(x, y);
 }
 
-
+// used in the maze function, have to check and update 
 void Point::start()
 {
     maze.write(x, y);
@@ -56,6 +49,41 @@ void Point::show(bool closed, const Point & parent)
         for(int j = min(y, parent.y); j <= max(y, parent.y);++j)
             maze.write(x, j, r, 0, b, false);
     maze.write(x, y, r, 0, b);
+}
+
+Point Point::begin(){
+    cv::Mat im = maze.im;
+    Point ret;
+    for(ret.y=0;ret.y<im.rows; ++ret.y)
+    {
+        for(ret.x=0;ret.x<im.cols;++ret.x)
+        {
+            if(maze.isFree(ret.x, ret.y))
+            {
+                std::cout << "Start @ (" << ret.x << ", " << ret.y << ")\n";
+                return ret;
+            }
+        }
+}
+return ret;
+}
+
+Point Point::end()
+{
+    cv::Mat im = maze.im;
+    Point ret;
+    for(ret.y=im.rows-1;ret.y> 0; --ret.y)
+    {
+        for(ret.x=im.cols-1;ret.x>0;--ret.x)
+        {
+            if(maze.isFree(ret.x, ret.y))
+            {
+                std::cout << "End @ (" << ret.x << ", " << ret.y << ")\n";
+                return ret;
+            }
+        }
+    }
+    return ret;
 }
 
 

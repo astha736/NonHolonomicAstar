@@ -4,7 +4,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
-#include <point.h>
 
 namespace ecn
 {
@@ -44,40 +43,6 @@ public:
 
     int height() {return im.rows;}
     int width() {return im.cols;}
-
-    ecn::Point start()
-    {
-        Point ret;
-        for(ret.y=0;ret.y<im.rows; ++ret.y)
-        {
-            for(ret.x=0;ret.x<im.cols;++ret.x)
-            {
-                if(isFree(ret.x, ret.y))
-                {
-                    std::cout << "Start @ (" << ret.x << ", " << ret.y << ")\n";
-                    return ret;
-                }
-            }
-        }
-        return ret;
-    }
-
-    ecn::Point end()
-    {
-        Point ret;
-        for(ret.y=im.rows-1;ret.y> 0; --ret.y)
-        {
-            for(ret.x=im.cols-1;ret.x>0;--ret.x)
-            {
-                if(isFree(ret.x, ret.y))
-                {
-                    std::cout << "End @ (" << ret.x << ", " << ret.y << ")\n";
-                    return ret;
-                }
-            }
-        }
-        return ret;
-    }
 
     void passThrough(int x, int y)
     {
@@ -144,7 +109,7 @@ public:
         cv::imwrite("../mazes/" + name, out);
         display("Solution", out);
     }
-protected:
+// protected:
     cv::Mat im, out;
     std::string filename;
     std::vector<cv::Point> path;
