@@ -20,18 +20,17 @@ namespace ecn
 
     public:
 
-        int lin_vel; // linear velocity
-        int ang_vel; // angular velocity
-
+        float lin_vel; // linear velocity
+        float ang_vel; // angular velocity
         // constructor from coordinates
 
         // constructor from base ecn::Point
-        RobotPose(int _lin_vel, int _ang_vel, Position p ) : Position(p.x,p.y,p.theta) {
+        RobotPose(float _lin_vel, float _ang_vel, Position p ) : Position(p.x,p.y,p.theta) {
             lin_vel = _lin_vel;
             ang_vel = _ang_vel;
         }
 
-        RobotPose(int _lin_vel, int _ang_vel, int _x, int _y, int _theta) : Position(_x, _y, _theta) {
+        RobotPose(float _lin_vel, float _ang_vel, float _x, float _y, float _theta) : Position(_x, _y, _theta) {
             lin_vel = _lin_vel;
             ang_vel = _ang_vel;
         }

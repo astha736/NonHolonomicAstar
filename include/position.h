@@ -34,7 +34,7 @@ namespace ecn
         }
 
         // constructor from base ecn::Point
-        Position(ecn::Point p, float _theta){
+        Position(Point p, float _theta){
             x = p.x;
             y = p.y;
             theta = _theta;
