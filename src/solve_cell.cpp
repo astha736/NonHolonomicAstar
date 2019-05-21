@@ -20,7 +20,7 @@ int main( int argc, char **argv )
     int ang_vel_end = 0;
 
     // load file
-    std::string filename = "maze.png";
+    std::string filename = "maze_basic.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 

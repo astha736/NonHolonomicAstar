@@ -27,6 +27,11 @@ public:
       if(filename.at(0) == '/') im = cv::imread(filename, cv::IMREAD_GRAYSCALE);
       else im = cv::imread("../mazes/"+filename, cv::IMREAD_GRAYSCALE);
       cv::cvtColor(im, out, cv::COLOR_GRAY2BGR);
+      std::cout << im << std::endl;
+
+      // below lines of code are only for display and debugging 
+      // cv::namedWindow( "Display window", WINDOW_AUTOSIZE );// Create a window for display.
+      cv::imshow( "Display window", im ); 
     }
 
     Maze(int height, int width)
