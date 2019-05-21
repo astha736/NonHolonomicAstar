@@ -3,6 +3,11 @@
 namespace ecn
 {
 
+float RobotPose::vel_max = 10;
+float RobotPose::vel_min = -10;
+float RobotPose::vel_tol = 0;
+float RobotPose::vel_parent_tol = 0;
+
 // TODO: write this print correctly
 void RobotPose::print(const RobotPose &parent)
 {

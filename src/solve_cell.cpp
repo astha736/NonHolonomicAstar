@@ -29,8 +29,8 @@ int main( int argc, char **argv )
 
     // initial and goal positions as Position's
 
-    Point start_point = Point::begin();
-    Point end_point = Point::end();
+//    Point start_point = Point::begin();
+//    Point end_point = Point::end();
 
     // Position start_position(start_point, theta_start); 
     // Position goal_position(end_point, theta_end);

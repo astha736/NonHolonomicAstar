@@ -42,12 +42,14 @@ public:
         h: is the heuristic function, will provide the heuristic of
         this node (x,y) from the goal node 
     */
-    double h(const Point &goal, bool use_manhattan)
-    {
-        if(use_manhattan)
-            return  abs(x-goal.x) + abs(y-goal.y);
-        return 1.5*sqrt((x-goal.x)*(x-goal.x) + (y-goal.y)*(y-goal.y));
-    }
+
+    // removing heuristic method since no longer used
+//    double h(const Point &goal, bool use_manhattan)
+//    {
+//        if(use_manhattan)
+//            return  abs(x-goal.x) + abs(y-goal.y);
+//        return 1.5*sqrt((x-goal.x)*(x-goal.x) + (y-goal.y)*(y-goal.y));
+//    }
 
     bool isFree(){
           if(maze.isFree(x, y)){
@@ -58,15 +60,15 @@ public:
         // prints the grid with all positions from parent
 
 
-    virtual void print(const Point &parent);
+    // virtual void print(const Point &parent);
 
-    void start(); // Used inside the maze.h code 
+    // void start(); // Used inside the a_star.h code
     //void test(); // This function was not being used anywhere 
 
-    virtual void show(bool closed, const Point &parent);
+    // virtual void show(bool closed, const Point &parent);
 
-    static Point begin();
-    static Point end();
+//    static Point begin();
+//    static Point end();
         
 };
 
