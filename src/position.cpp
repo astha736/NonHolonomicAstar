@@ -8,64 +8,37 @@ float Position::y_tol = 0;
 float Position::theta_tol = 0; // degree
 float Position::scale_factor = 1; // 1 pixel = 1 cm : minimum step of the robot
 
+// Two positions are equal
+bool Position::is(const Position &other)
+{
+    if((other.x - x_tol <= x <= other.x + x) &&
+       (other.y - y_tol <= y <= other.y + y) &&
+       (other.theta - theta_tol <= theta <= other.theta + theta_tol)){
+        return 1;
+    }
+    return 0;
 }
-// TODO: write this print correctly
-// int Position::distToParent()
-// {
-//     // in cell-based motion, the distance to the parent is always 1
-//     return 1;
-// }
 
-// TODO: write this print correctly
-// std::vector<Position::PositionPtr> Position::children()
-// {
-//     // this method should return  all positions reachable from this one
-//     std::vector<Position::PositionPtr> generated;
+// This heurstic is currently used by the RobotPose class as well
+double Position::h(const Position &goal, const Position &starting) //, bool use_manhattan)
+{
+    // if(use_manhattan)
+    //     return  abs(x-goal.x) + abs(y-goal.y);
+    // return 1.5*sqrt((x-goal.x)*(x-goal.x) + (y-goal.y)*(y-goal.y));
+    float x_dist = (x - starting.x)/(goal.x - starting.x);
+    float y_dist = (y - starting.y)/(goal.y - starting.y);
+    float theta_dist = (theta - starting.theta)/(goal.theta - starting.x);
+    return sqrt(pow(x_dist,2) + pow(y_dist,2) + pow(theta_dist,2));
 
-//     return generated;
-// }
+}
 
-// TODO: write this print correctly
-//void Position::print(const Position &parent)
-//{
-//        int x_incr(0), y_incr(0);
-//        // may need to change incase we assume anything other than 1 pix <=> 1 cm
+// This isFree is currently used by the RobotPose class as well
+// TODO: is this much okay??
+bool Position::isFree(){
+    if(Point::maze.isFree(x, y)){
+        return true;
+    }
+    return false;
 
-//        if(x - parent.x)
-//            x_incr = x - parent.x > 0 ? 1 : -1;
-//        else
-//            y_incr = y - parent.y > 0 ? 1 : -1;
-//        int k = 1;
-//        while(parent.x + k*x_incr != x || parent.y + k*y_incr != y)
-//        {
-//            maze.passThrough(parent.x + k*x_incr,
-//                             parent.y + k*y_incr);
-//            k++;
-//        }
-
-//    maze.passThrough(x, y);
-
-//}
-
-// used in the maze function, have to check and update 
-// TODO: write this print correctly
-// void Position::start()
-// {
-// }
-
-// online print, color depends on closed / open set
-// TODO: write this print correctly
-
-//void Position::show(bool closed, const Position & parent)
-//{
-//}
-
-// // TODO: these should set some static variables 
-// Position Position::begin(){
-
-// }
-
-// // TODO: these should set some static variables 
-// Position Position::end(){
-
-// }
+    }
+}

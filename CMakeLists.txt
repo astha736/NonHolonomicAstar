@@ -22,5 +22,5 @@ add_library(NonHolonmicAstar SHARED
 
 target_link_libraries(NonHolonmicAstar ${OpenCV_LIBS})
 
-add_executable(cell src/solve_cell.cpp)
-target_link_libraries(cell  NonHolonmicAstar)
+add_executable(solve_cell src/solve_cell.cpp)
+target_link_libraries(solve_cell  NonHolonmicAstar)
