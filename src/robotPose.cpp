@@ -8,18 +8,23 @@ namespace ecn
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
 
     // creates 2 different vector containing the possible choices that the two wheels can have.
-    int scale = -1*vel_scale;
+    int scale = -1*vel_increment_limit;
     vector<float> r_vel_choice;
     vector<float> l_vel_choice;
-    while(scale <= vel_scale ){
-        float temp_r_vel = r_vel+scale;
-        float temp_l_vel = l_vel+scale;
+    float temp_r_vel;
+    float temp_l_vel;
+    while(scale <= vel_increment_limit ){
+        temp_r_vel = r_vel+scale;
+        temp_l_vel = l_vel+scale;
 
         if(temp_r_vel > vel_max || temp_r_vel < vel_min); // do nothing
+        else {
+            r_vel_choice.push_back(temp_r_vel);
+        }
         if(temp_l_vel > vel_max || temp_l_vel < vel_min); // do nothing
-
-        r_vel_choice.push_back(r_vel+scale);
-        l_vel_choice.push_back(l_vel+scale);
+        else {
+            l_vel_choice.push_back(temp_l_vel);
+        }
         scale += 1; // increase the scale by 1
     }
 
@@ -29,27 +34,32 @@ vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     for(int i =0; i < r_vel_choice.size(); i++){
         for(int j=0; j < l_vel_choice.size(); j++){
             ret.push_back(RobotPose::pairVel(r_vel_choice[i],l_vel_choice[j]));
+
         }
     }
     return ret;
 }
 
-// TODO
-pair<float,float> RobotPose::getVelOmega(RobotPose::pairVel _vel_wheel){
-
+pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
+    pair<float,float> returnVel;
+    returnVel.first = (rWheel*_vel_wheel.right + rWheel*_vel_wheel.left)/2;
+    returnVel.second = (rWheel*_vel_wheel.right - rWheel*_vel_wheel.left)/(2*tGauge);
+    return returnVel;
 }
 
 // TODO
 Position RobotPose::getNextPosition(pair<float,float> _vel_vel_omega){
-
+    float xPos = x+_vel_vel_omega.first*timeStep*cos(theta);
+    float yPos = y+_vel_vel_omega.first*timeStep*sin(theta);
+    float thetaPos = theta + _vel_vel_omega.second;
+    return Position(xPos, yPos, thetaPos);
 }
 
-
 // TODO: write this print correctly
-int RobotPose::distToParent()
+float RobotPose::distToParent()
 {
     // in cell-based motion, the distance to the parent is always 1
-    return 1;
+    return dist;
 }
 
 // TODO: write this print correctly
@@ -66,13 +76,13 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
     for(int i=0; i < velChoices.size(); i++){
 
         // 1. for given vel choice calculate x,y
-        pair<float,float> tempVelWheel = RobotPose::getVelOmega(velChoices[i]);
+        pair<float,float> tempVelWheel = RobotPose::robotVelocity(velChoices[i]);
         Position tempPosition  = RobotPose::getNextPosition(tempVelWheel);
         // 2. check if they are free or not
         if(!tempPosition.isFree()) continue; // skip this i
         // if valid create children
         // push in the generated vector
-        generated.push_back(std::make_unique <RobotPose>(0,0,tempPosition));
+        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition));
     }
 
     return generated;

@@ -32,18 +32,22 @@ public:
 
     float r_vel; // right angular velocity
     float l_vel; // left angular velocity
+    float dist;
+
 
     // const: since we don't want anyone to change this attribute
     // static: so that only one copy of the variable is made
-    const static int vel_scale = 2; // scale of +-r_vel and l_vel
+    const static int vel_increment_limit = 2; // scale of +-r_vel and l_vel
+    static constexpr float rWheel = 1; // wheel radius
+    static constexpr float tGauge = 1; // track gauge
+    static constexpr float timeStep = 1; // time step
+
 
     // when using a float or double kind of variable use a "constexpr"
     static constexpr float vel_max = 10; // max angular velocity for any wheel
     static constexpr float vel_min = -10; // min angular velocity for any wheel
     static constexpr float vel_tol = 0; // angular velocity tolerance to be used in comparison
     static constexpr float vel_parent_tol = 0; // range in which child velocities should lie wrt parent
-
-
 
     // constructor from coordinates
 
@@ -73,11 +77,12 @@ public:
     // Generate a set of choices of wheel velocity
     vector<pairVel>  generateVelChoices();
 
-    // static method that converts weel velocity to v, w
-    static pair<float,float> getVelOmega(pairVel _vel_wheel);
+    // Converting wheel velocites to linear and angular velocities stored in robotVelocity
+    // for a (2,0) robot <linear, angular>
+    static pair<float,float> robotVelocity(pairVel _vel_wheel);
 
 
-    // method that takes v, w and generates Position we can reach
+    // method that takes v, w and generates Position we can reach (assuming 1 sec time step)
     Position getNextPosition(pair<float,float> _vel_vel_omega);
 
 
@@ -100,7 +105,7 @@ public:
     //    bool isFree();
     //    double h(const RobotPose &goal, bool use_manhattan);
 
-    int distToParent();
+    float distToParent();
     std::vector<RobotPosePtr> children();
 
     // This function was not being used anywhere

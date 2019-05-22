@@ -107,7 +107,7 @@ void Astar(T start, T goal)
     {
         T* elem;
         double f;
-        int g;
+        float g; // ******** made a big change here  converted int to float **********
     };
 
 
@@ -205,7 +205,9 @@ void Astar(T start, T goal)
                             [&child_ptr](T* elem){return elem->is(*child_ptr);}) == closedSet.rend())
             {
                 auto twin = queue.find(*child_ptr);
-                const int child_g = best.g + child_ptr->distToParent();
+//                const int child_g = best.g + child_ptr->distToParent();
+                const float child_g = best.g + child_ptr->distToParent();
+                                if(!twin)
                 if(!twin)
                 {
                     queue.push({child_ptr,
