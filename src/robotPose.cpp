@@ -116,7 +116,7 @@ bool RobotPose::is(const RobotPose &_other)
 }
 
 
-float RobotPose::h(const RobotPose &_goal)
+float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 {
     float thetaDispTemp = _goal.theta - theta;
     float thetaDisp = min(abs(thetaDispTemp),360 - abs(thetaDispTemp));

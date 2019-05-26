@@ -98,7 +98,7 @@ public:
     float distTravelled(pairVel _wheelVelocityPair);
 
     //heuristic
-    float h(const RobotPose &_goal);
+    float h(const RobotPose &_goal, bool useManhattan);
 
 };
 }
