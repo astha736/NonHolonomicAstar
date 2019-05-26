@@ -43,9 +43,9 @@ bool Position::isFree(){
     }
 
 // TODO: Put some values here
-float Position::distFromPosition(const Position &p){
-    //
-    return 1;
-}
+//float Position::distFromPosition(const Position &p){
+//    //
+//    return 1;
+//}
 
 }

@@ -23,12 +23,12 @@ vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
         if(temp_l_vel > vel_max || temp_l_vel < vel_min); // do nothing
         else {
             l_vel_choice.push_back(temp_l_vel);
-        }
-        scale += 1; // increase the scale by 1
+        } // LOOK HERE
+        scale += velocityIncrementStep; // increase the scale by velocity step
     }
 
     // need to create the wheelVelVectorPair which can be directly be used to create valid childrens
-    vector<RobotPose::pairVel>  ret; // return variable
+    vector<RobotPose::pairVel> ret; // return variable
 
     for(int i =0; i < r_vel_choice.size(); i++){
         for(int j=0; j < l_vel_choice.size(); j++){
@@ -58,8 +58,6 @@ Position RobotPose::getNextPosition(pair<float,float> _vel_vel_omega){
     return Position(xPos, yPos, thetaPos);
 }
 
-
-
 std::vector<RobotPose::RobotPosePtr> RobotPose::children()
 {
     // TODO: write this print correctly
@@ -80,16 +78,16 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         Position tempPosition  = RobotPose::getNextPosition(tempVelWheel);
         
         // step3. check if the child node is free(valid) or not
-        if(!tempPosition.isFree()) continue; // skip this i
+        if(!tempPosition.isFree()) continue; // skip this iteration if not free
 
         // step4. calculate distance of the child from this node(parent)
-        float tempdist = this->distFromPosition(tempPosition);
-        // step5. make a object for childrent with a unique_ptr
+        float tempdist = distTravelled(velChoices[i]);
+
+        // step5. make an object for the child with a unique_ptr
         generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition,tempdist));
     }
     return generated;
 }
-
 
 float RobotPose::distToParent()
 {
@@ -103,8 +101,8 @@ float RobotPose::distToParent()
 // check of two RobotPose are same or not
 bool RobotPose::is(const RobotPose &other)
 {
-    if((other.x - x_tol <= x <= other.x + x) &&
-            (other.y - y_tol <= y <= other.y + y) &&
+    if((other.x - x_tol <= x <= other.x + x_tol) &&
+            (other.y - y_tol <= y <= other.y + y_tol) &&
             (other.theta - theta_tol <= theta <= other.theta + theta_tol) &&
             (other.l_vel - vel_tol <= l_vel <= other.l_vel + vel_tol) &&
             (other.r_vel - vel_tol <= r_vel <= other.r_vel + vel_tol))
@@ -126,7 +124,6 @@ void RobotPose::print(const RobotPose &parent)
         x_incr = x - parent.x > 0 ? 1 : -1;
     else
         y_incr = y - parent.y > 0 ? 1 : -1;
-
 
     int k = 1;
     while(parent.x + k*x_incr != x || parent.y + k*y_incr != y)
@@ -162,6 +159,20 @@ void RobotPose::show(bool closed, const RobotPose & parent)
             Point::maze.write(x, j, r, 0, b, false);
     Point::maze.write(x, y, r, 0, b);
 }
+
+float RobotPose::distTravelled(RobotPose::pairVel wheel_vel){
+    // returns the distance travelled by the robot
+    // distance taken as the average of wheel rotations during motion from parent to child
+    // in 1 time-step
+
+    return ((wheel_vel.left)*timeStep + (wheel_vel.right)*timeStep)/2;
+}
+
+
+
+
+
+
 
 
 } // END of namespace

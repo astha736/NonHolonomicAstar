@@ -38,7 +38,7 @@ public:
 
     // const: since we don't want anyone to change this attribute
     // static: so that only one copy of the variable is made
-    const static int vel_increment_limit = 2; // scale of +-r_vel and l_vel
+    const static int vel_increment_limit = 2; // limit of +-r_vel and l_vel from current state
     static constexpr float rWheel = 1; // wheel radius
     static constexpr float tGauge = 1; // track gauge
     static constexpr float timeStep = 1; // time step
@@ -48,7 +48,10 @@ public:
     static constexpr float vel_max = 10; // max angular velocity for any wheel
     static constexpr float vel_min = -10; // min angular velocity for any wheel
     static constexpr float vel_tol = 0; // angular velocity tolerance to be used in comparison
-    static constexpr float vel_parent_tol = 0; // range in which child velocities should lie wrt parent
+//    static constexpr float vel_parent_tol = 0; // range in which child velocities should lie wrt parent
+
+    static constexpr float velocityIncrementStep = 1;
+
 
     // constructor from coordinates
 
@@ -111,6 +114,7 @@ public:
 
     float distToParent();
     std::vector<RobotPosePtr> children();
+    float distTravelled(RobotPose::pairVel wheel_vel);
 
     // This function was not being used anywhere
     // just kept it incase we find some use of this
