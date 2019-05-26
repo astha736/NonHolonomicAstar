@@ -74,7 +74,7 @@ namespace ecn
         // TODO: update the heuristic here
         // Current heuristic is for a (2,0) type robot
         // since we can freely change theta at any given (x,y), the heuristic should be dependant on (x,y) at any given time
-        double h(const Position &goal, const Position &starting); //, bool use_manhattan)
+        // double h(const Position &goal, const Position &starting); //, bool use_manhattan)
 
 
         // TODO: check the implementation

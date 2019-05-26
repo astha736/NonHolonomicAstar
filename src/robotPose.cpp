@@ -165,7 +165,21 @@ float RobotPose::distTravelled(RobotPose::pairVel wheel_vel){
     // distance taken as the average of wheel rotations during motion from parent to child
     // in 1 time-step
 
-    return ((wheel_vel.left)*timeStep + (wheel_vel.right)*timeStep)/2;
+    return (abs((wheel_vel.left)*timeStep) + abs((wheel_vel.right)*timeStep))/2;
+}
+
+float RobotPose::h(const RobotPose &goal)
+{
+    float thetaDispTemp = goal.theta - theta;
+    float thetaDisp = min(abs(thetaDispTemp),360 - abs(thetaDispTemp));
+    float wheelSpinTheta = thetaDisp*tGauge/(2*rWheel);
+
+    float x_dist = (x - goal.x);
+    float y_dist = (y - goal.y);
+
+    float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/rWheel;
+
+    return wheelSpinStraight + wheelSpinTheta;
 }
 
 

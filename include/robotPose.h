@@ -115,6 +115,7 @@ public:
     float distToParent();
     std::vector<RobotPosePtr> children();
     float distTravelled(RobotPose::pairVel wheel_vel);
+    float h(const RobotPose &goal); //heuristic
 
     // This function was not being used anywhere
     // just kept it incase we find some use of this

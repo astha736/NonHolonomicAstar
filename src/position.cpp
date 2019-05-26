@@ -20,17 +20,18 @@ bool Position::is(const Position &other)
 }
 
 // This heurstic is currently used by the RobotPose class as well
-double Position::h(const Position &goal, const Position &starting) //, bool use_manhattan)
-{
-    // if(use_manhattan)
-    //     return  abs(x-goal.x) + abs(y-goal.y);
-    // return 1.5*sqrt((x-goal.x)*(x-goal.x) + (y-goal.y)*(y-goal.y));
-    float x_dist = (x - starting.x)/(goal.x - starting.x);
-    float y_dist = (y - starting.y)/(goal.y - starting.y);
-    float theta_dist = (theta - starting.theta)/(goal.theta - starting.x);
-    return sqrt(pow(x_dist,2) + pow(y_dist,2) + pow(theta_dist,2));
 
-}
+//double Position::h(const Position &goal, const Position &starting) //, bool use_manhattan)
+//{
+//    // if(use_manhattan)
+//    //     return  abs(x-goal.x) + abs(y-goal.y);
+//    // return 1.5*sqrt((x-goal.x)*(x-goal.x) + (y-goal.y)*(y-goal.y));
+//    float x_dist = (x - starting.x)/(goal.x - starting.x);
+//    float y_dist = (y - starting.y)/(goal.y - starting.y);
+//    float theta_dist = (theta - starting.theta)/(goal.theta - starting.x);
+//    return sqrt(pow(x_dist,2) + pow(y_dist,2) + pow(theta_dist,2));
+
+//}
 
 // This isFree is currently used by the RobotPose class as well
 // TODO: is this much okay??
