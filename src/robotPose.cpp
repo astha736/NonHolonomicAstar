@@ -48,8 +48,12 @@ pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
 
 // TODO
 Position RobotPose::getNextPosition(pair<float,float> _vel_vel_omega){
+
+    // pair.first = linear velocity
     float xPos = x+_vel_vel_omega.first*timeStep*cos(theta);
     float yPos = y+_vel_vel_omega.first*timeStep*sin(theta);
+
+    // pair.second = angular velocity
     float thetaPos = theta + _vel_vel_omega.second;
     return Position(xPos, yPos, thetaPos);
 }
@@ -69,14 +73,18 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
     // for all the possible generated combination create children
     for(int i=0; i < velChoices.size(); i++){
 
-        // 1. for given vel choice calculate x,y
+        // step1. calculate lin-vel and ang-vel
         pair<float,float> tempVelWheel = RobotPose::robotVelocity(velChoices[i]);
+
+        // step2. calculate the (x,y,theta) of the possible child node  
         Position tempPosition  = RobotPose::getNextPosition(tempVelWheel);
-        // 2. check if they are free or not
+        
+        // step3. check if the child node is free(valid) or not
         if(!tempPosition.isFree()) continue; // skip this i
-        // if valid create children
-        // push in the generated vector
-       float tempdist = this->distFromPosition(tempPosition);
+
+        // step4. calculate distance of the child from this node(parent)
+        float tempdist = this->distFromPosition(tempPosition);
+        // step5. make a object for childrent with a unique_ptr
         generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition,tempdist));
     }
     return generated;
