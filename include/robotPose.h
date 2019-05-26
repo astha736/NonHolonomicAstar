@@ -24,46 +24,32 @@ public:
     {
         float right;
         float left;
-        // A constructor for pairVel: makes it easier to create a variable
         pairVel (float _right,float _left): right(_right), left(_left){}
     };
 
-    //MAYBE MAKE ALL INT
+    float rightWheelVel;    // right wheel velocity
+    float leftWheelVel;     // left wheel velocity
+    float distance;         // distance of this node from its parent
 
-    float r_vel; // right angular velocity
-    float l_vel; // left angular velocity
-//    float dist;
-    float distance; // gives no error: Astha
-
-
-    // const: since we don't want anyone to change this attribute
-    // static: so that only one copy of the variable is made
-    const static int vel_increment_limit = 2; // limit of +-r_vel and l_vel from current state
     static constexpr float rWheel = 1; // wheel radius
     static constexpr float tGauge = 1; // track gauge
     static constexpr float timeStep = 1; // time step
 
+    static constexpr float wheelVelocityMax = 10; // max angular velocity for any wheel
+    static constexpr float wheelVelocityMin = -10; // min angular velocity for any wheel
+    static constexpr float wheelVelocityTolerance = 0; // angular velocity tolerance to be used in comparison
 
-    // when using a float or double kind of variable use a "constexpr"
-    static constexpr float vel_max = 10; // max angular velocity for any wheel
-    static constexpr float vel_min = -10; // min angular velocity for any wheel
-    static constexpr float vel_tol = 0; // angular velocity tolerance to be used in comparison
-//    static constexpr float vel_parent_tol = 0; // range in which child velocities should lie wrt parent
-
+    static constexpr float velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
     static constexpr float velocityIncrementStep = 1;
 
-
-    // constructor from coordinates
-
-    // constructor from base ecn::Point
-    RobotPose(float _r_vel, float _l_vel, Position _p ) : Position(_p.x,_p.y,_p.theta) {
-        r_vel = _r_vel;
-        l_vel = _l_vel;
+    RobotPose(float _rightWheelVel, float _leftWheelVel, Position _p ) : Position(_p.x,_p.y,_p.theta) {
+        rightWheelVel = _rightWheelVel;
+        leftWheelVel = _leftWheelVel;
     }
 
-    RobotPose(float _r_vel, float _l_vel, float _x, float _y, float _theta) : Position(_x, _y, _theta) {
-        r_vel = _r_vel;
-        l_vel = _l_vel;
+    RobotPose(float _rightWheelVel, float _leftWheelVel, float _x, float _y, float _theta) : Position(_x, _y, _theta) {
+        rightWheelVel = _rightWheelVel;
+        leftWheelVel = _leftWheelVel;
     }
 
     RobotPose(pairVel _vel,Position _p ):RobotPose(_vel.right, _vel.left,_p){}
@@ -71,14 +57,13 @@ public:
         distance = _dist;
     }
 
-    // assignmnet operator
-    void operator=(const RobotPose &p)
+    void operator=(const RobotPose &_p)
     {
-        x = p.x;
-        y = p.y;
-        theta = p.theta;
-        r_vel = p.r_vel;
-        l_vel = p.l_vel;
+        x = _p.x;
+        y = _p.y;
+        theta = _p.theta;
+        rightWheelVel = _p.rightWheelVel;
+        leftWheelVel = _p.leftWheelVel;
     }
 
     // Generate a set of choices of wheel velocity
@@ -90,37 +75,30 @@ public:
 
 
     // method that takes v, w and generates Position we can reach (assuming 1 sec time step)
-    Position getNextPosition(pair<float,float> _vel_vel_omega);
+    Position getNextPosition(pair<float,float> _linVel_angVel);
 
 
     // Suggest how the object of such data type should be printed
-    friend std::ostream& operator<<(std::ostream& out, const RobotPose& p)
+    friend std::ostream& operator<<(std::ostream& _out, const RobotPose& _p)
     {
-        out << "(X:" << p.x << ",Y: " << p.y << ",theta:" << p.theta << ",r_vel:" << p.r_vel << ",l_vel:" << p.l_vel << ")" ;
-        return out;
+        _out << "(X:" << _p.x << ",Y: " << _p.y << ",theta:" << _p.theta << ",rightWheelVel:" << _p.rightWheelVel << ",leftWheelVel:" << _p.leftWheelVel << ")" ;
+        return _out;
     }
 
     // check of two RobotPose are same or not
-    bool is(const RobotPose &other);
+    bool is(const RobotPose &_other);
 
-    // Functions that are used for visualization purposes
-    virtual void print(const RobotPose &parent);
-    void start(); // Used inside the maze.h code
-    virtual void show(bool closed, const RobotPose &parent);
-
-    //   Inherited from Position.h
-    //    bool isFree();
-    //    double h(const RobotPose &goal, bool use_manhattan);
-
+    // getter to return distance attribute (distance between current node and its parent)
     float distToParent();
+    // vector of unique_ptr to children
     std::vector<RobotPosePtr> children();
-    float distTravelled(RobotPose::pairVel wheel_vel);
-    float h(const RobotPose &goal); //heuristic
 
-    // This function was not being used anywhere
-    // just kept it incase we find some use of this
-    //    void test();
+    // calculates the distance traveled by robot travelling at wheel velocity pair
+    // will be used to calculate the distance attribute of the children
+    float distTravelled(pairVel _wheelVelocityPair);
 
+    //heuristic
+    float h(const RobotPose &_goal);
 
 };
 }

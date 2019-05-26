@@ -7,32 +7,32 @@ namespace ecn
 
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     // creates 2 different vector containing the possible choices that the two wheels can have.
-    int scale = -1*vel_increment_limit;
-    vector<float> r_vel_choice;
-    vector<float> l_vel_choice;
-    float temp_r_vel;
-    float temp_l_vel;
-    while(scale <= vel_increment_limit ){
-        temp_r_vel = r_vel+scale;
-        temp_l_vel = l_vel+scale;
+    int scale = -1*velocityIncrementLimit;
+    vector<float> rightWheelVel_choice;
+    vector<float> leftWheelVel_choice;
+    float temp_rightWheelVel;
+    float temp_leftWheelVel;
+    while(scale <= velocityIncrementLimit ){
+        temp_rightWheelVel = rightWheelVel+scale;
+        temp_leftWheelVel = leftWheelVel+scale;
 
-        if(temp_r_vel > vel_max || temp_r_vel < vel_min); // do nothing
+        if(temp_rightWheelVel > wheelVelocityMax || temp_rightWheelVel < wheelVelocityMin); // do nothing
         else {
-            r_vel_choice.push_back(temp_r_vel);
+            rightWheelVel_choice.push_back(temp_rightWheelVel);
         }
-        if(temp_l_vel > vel_max || temp_l_vel < vel_min); // do nothing
+        if(temp_leftWheelVel > wheelVelocityMax || temp_leftWheelVel < wheelVelocityMin); // do nothing
         else {
-            l_vel_choice.push_back(temp_l_vel);
-        } // LOOK HERE
+            leftWheelVel_choice.push_back(temp_leftWheelVel);
+        }
         scale += velocityIncrementStep; // increase the scale by velocity step
     }
 
     // need to create the wheelVelVectorPair which can be directly be used to create valid childrens
     vector<RobotPose::pairVel> ret; // return variable
 
-    for(int i =0; i < r_vel_choice.size(); i++){
-        for(int j=0; j < l_vel_choice.size(); j++){
-            ret.push_back(RobotPose::pairVel(r_vel_choice[i],l_vel_choice[j]));
+    for(int i =0; i < rightWheelVel_choice.size(); i++){
+        for(int j=0; j < leftWheelVel_choice.size(); j++){
+            ret.push_back(RobotPose::pairVel(rightWheelVel_choice[i],leftWheelVel_choice[j]));
 
         }
     }
@@ -46,23 +46,28 @@ pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
     return returnVel;
 }
 
-// TODO
-Position RobotPose::getNextPosition(pair<float,float> _vel_vel_omega){
+Position RobotPose::getNextPosition(pair<float,float> _linVel_angVel){
 
     // pair.first = linear velocity
-    float xPos = x+_vel_vel_omega.first*timeStep*cos(theta);
-    float yPos = y+_vel_vel_omega.first*timeStep*sin(theta);
+    float xPos = x+_linVel_angVel.first*timeStep*cos(theta);
+    float yPos = y+_linVel_angVel.first*timeStep*sin(theta);
 
     // pair.second = angular velocity
-    float thetaPos = theta + _vel_vel_omega.second;
+    float thetaPos = theta + _linVel_angVel.second;
     return Position(xPos, yPos, thetaPos);
+}
+
+float RobotPose::distTravelled(pairVel _wheelVelocityPair){
+    // returns the distance travelled by the robot
+    // distance taken as the average of wheel rotations during motion from parent to child
+    // in 1 time-step
+    return (abs((_wheelVelocityPair.left)*timeStep) + abs((_wheelVelocityPair.right)*timeStep))/2;
 }
 
 std::vector<RobotPose::RobotPosePtr> RobotPose::children()
 {
-    // TODO: write this print correctly
-    std::vector<RobotPosePtr> generated;
     // this method should return  all positions reachable from this one
+    std::vector<RobotPosePtr> generated;
 
     // based on the vector of acceptable velocity generate different children
     vector<RobotPose::pairVel> velChoices;
@@ -91,21 +96,19 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
 
 float RobotPose::distToParent()
 {
-    // TODO: write this print correctly
-    // in cell-based motion, the distance to the parent is always 1
-    //return dist;
     return distance;
 }
 
 
-// check of two RobotPose are same or not
-bool RobotPose::is(const RobotPose &other)
+
+bool RobotPose::is(const RobotPose &_other)
 {
-    if((other.x - x_tol <= x <= other.x + x_tol) &&
-            (other.y - y_tol <= y <= other.y + y_tol) &&
-            (other.theta - theta_tol <= theta <= other.theta + theta_tol) &&
-            (other.l_vel - vel_tol <= l_vel <= other.l_vel + vel_tol) &&
-            (other.r_vel - vel_tol <= r_vel <= other.r_vel + vel_tol))
+    // check of two RobotPose are same or not
+    Position othePosition = _other;
+    Position* nodePosition = this;
+    if(nodePosition->is(othePosition) &&
+            (_other.leftWheelVel - wheelVelocityTolerance <= leftWheelVel <= _other.leftWheelVel + wheelVelocityTolerance) &&
+            (_other.rightWheelVel - wheelVelocityTolerance <= rightWheelVel <= _other.rightWheelVel + wheelVelocityTolerance))
     {
         return 1;
     }
@@ -113,80 +116,19 @@ bool RobotPose::is(const RobotPose &other)
 }
 
 
-// TODO: check if parent needs to be typecasted to int
-void RobotPose::print(const RobotPose &parent)
+float RobotPose::h(const RobotPose &_goal)
 {
-    int x_incr(0), y_incr(0);
-    // may need to change incase we assume anything other than 1 pix <=> 1 cm
-
-    // check if the parent is different from child
-    if(x - parent.x)
-        x_incr = x - parent.x > 0 ? 1 : -1;
-    else
-        y_incr = y - parent.y > 0 ? 1 : -1;
-
-    int k = 1;
-    while(parent.x + k*x_incr != x || parent.y + k*y_incr != y)
-    {
-        Point::maze.passThrough(parent.x + k*x_incr,
-                                parent.y + k*y_incr);
-        k++;
-    }
-
-    Point::maze.passThrough(x, y);
-
-}
-
-// TODO: check if parent needs to be typecasted to int
-// used in the maze function, have to check and update 
-// TODO: write this print correctly
-void RobotPose::start()
-{
-    Point::maze.write(x, y);
-}
-
-// TODO: check if parent needs to be typecasted to int
-// online print, color depends on closed / open set
-// TODO: write this print correctly
-void RobotPose::show(bool closed, const RobotPose & parent)
-{
-    const int b = closed?255:0, r = closed?0:255;
-    if(x != parent.x)
-        for(int i = min(x, parent.x); i <= max(x, parent.x);++i)
-            Point::maze.write(i, y, r, 0, b, false);
-    else
-        for(int j = min(y, parent.y); j <= max(y, parent.y);++j)
-            Point::maze.write(x, j, r, 0, b, false);
-    Point::maze.write(x, y, r, 0, b);
-}
-
-float RobotPose::distTravelled(RobotPose::pairVel wheel_vel){
-    // returns the distance travelled by the robot
-    // distance taken as the average of wheel rotations during motion from parent to child
-    // in 1 time-step
-
-    return (abs((wheel_vel.left)*timeStep) + abs((wheel_vel.right)*timeStep))/2;
-}
-
-float RobotPose::h(const RobotPose &goal)
-{
-    float thetaDispTemp = goal.theta - theta;
+    float thetaDispTemp = _goal.theta - theta;
     float thetaDisp = min(abs(thetaDispTemp),360 - abs(thetaDispTemp));
     float wheelSpinTheta = thetaDisp*tGauge/(2*rWheel);
 
-    float x_dist = (x - goal.x);
-    float y_dist = (y - goal.y);
+    float x_dist = (x - _goal.x);
+    float y_dist = (y - _goal.y);
 
     float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/rWheel;
 
     return wheelSpinStraight + wheelSpinTheta;
 }
-
-
-
-
-
-
 
 
 } // END of namespace

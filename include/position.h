@@ -18,18 +18,15 @@ namespace ecn
 {
     class Position
     {
-        // TODO:
-        // 1. probably add a POint(x,y) as a internal variable or inherit from it ?
-        // 2. Add a begin and end poisition as static variables so that all the nodes know about it!
-        // Or do we want to do that for just the RobotPose ?
 
     protected:
         // tolerances along x,y and theta to be ignored whiel some comparison
-        static float x_tol; //cm
-        static float y_tol;
-        static float theta_tol; // degree
-        static float scale_factor; // 1 pixel = 1 cm : minimum step of the robot
-        // static Maze maze;
+        static constexpr float xTolerance = 0; //cm
+        static constexpr float yTolerance = 0;
+        static constexpr float thetaTolerance = 0; // degree
+
+        // for future use
+        static constexpr float scaleFactor = 1; // assumption( 1 pixel = scaleFactor x 1 cm : minimum step of the robot)
 
     public:
         typedef std::unique_ptr<Position> PositionPtr;
@@ -46,44 +43,43 @@ namespace ecn
         }
 
         // constructor from base ecn::Point
-        Position(Point p, float _theta){
-            x = p.x;
-            y = p.y;
+        Position(Point _p, float _theta){
+            x = _p.x;
+            y = _p.y;
             theta = _theta;
         }
 
 
         // assignmnet operator
-        void operator=(const Position &p)
+        void operator=(const Position &_p)
         {
-            x = p.x;
-            y = p.y;
-            theta = p.theta;
+            x = _p.x;
+            y = _p.y;
+            theta = _p.theta;
         }
 
-
-        friend std::ostream& operator<<(std::ostream& out, const Position& p)
+        // cout template
+        friend std::ostream& operator<<(std::ostream& _out, const Position& _p)
         {
-            out << "(X:" << p.x << ",Y: " << p.y << ",theta:" << p.theta << ")" ;
-            return out;
+            _out << "(X:" << _p.x << ",Y: " << _p.y << ",theta:" << _p.theta << ")" ;
+            return _out;
         }
 
-        // TODO: how to say when two positions are equal - added tolerances along x, y and theta
-        bool is(const Position &other);
-
-        // TODO: update the heuristic here
-        // Current heuristic is for a (2,0) type robot
-        // since we can freely change theta at any given (x,y), the heuristic should be dependant on (x,y) at any given time
-        // double h(const Position &goal, const Position &starting); //, bool use_manhattan)
-
+        // Check: two positions are equal - with added tolerances along x, y and theta
+        bool is(const Position &_other);
 
         // TODO: check the implementation
         bool isFree();
 
-//        float distFromPosition(const Position &p);
-//        static float convertDegreeToRadian(int _deg);
+        // Functions that are used for visualization purposes
+        void print(const Position &_parent);
+        void start(); // Used inside the maze.h code
+        void show(bool _closed, const Position &_parent);
 
     };
 }
 
 #endif
+
+//        float distFromPosition(const Position &p);
+//        static float convertDegreeToRadian(int _deg);

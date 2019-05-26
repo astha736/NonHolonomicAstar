@@ -1,23 +1,95 @@
 #include <position.h>
 
+#include <math.h>
+#include <point.h>
+
+using namespace std;
+
 namespace ecn
 {
 
-float Position::x_tol = 0; //cm
-float Position::y_tol = 0;
-float Position::theta_tol = 0; // degree
-float Position::scale_factor = 1; // 1 pixel = 1 cm : minimum step of the robot
 
-// Two positions are equal
-bool Position::is(const Position &other)
+bool Position::is(const Position &_other)
 {
-    if((other.x - x_tol <= x <= other.x + x) &&
-       (other.y - y_tol <= y <= other.y + y) &&
-       (other.theta - theta_tol <= theta <= other.theta + theta_tol)){
+    // Check: two positions are equal - with added tolerances along x, y and theta
+    if((_other.x - xTolerance <= x <= _other.x + xTolerance) &&
+       (_other.y - yTolerance <= y <= _other.y + yTolerance) &&
+       (_other.theta - thetaTolerance <= theta <= _other.theta + thetaTolerance)){
         return 1;
     }
     return 0;
 }
+
+bool Position::isFree(){
+    // This isFree is currently used by the RobotPose class as well
+    int xTemp = floor(x/scaleFactor);
+    int yTemp = floor(y/scaleFactor);
+    if(Point::maze.isFree(xTemp,yTemp)){
+        return true;
+    }
+    return false;
+    }
+
+void Position::print(const Position &_parent)
+{
+    // TODO: check if parent needs to be typecasted to int
+    int x_incr(0), y_incr(0);
+    // may need to change incase we assume anything other than 1 pix <=> 1 cm
+
+    // check if the parent is different from child
+    if(x - _parent.x)
+        x_incr = x - _parent.x > 0 ? 1 : -1;
+    else
+        y_incr = y - _parent.y > 0 ? 1 : -1;
+
+    int k = 1;
+    int xTemp, yTemp;
+    while(_parent.x + k*x_incr != x || _parent.y + k*y_incr != y)
+    {
+
+        xTemp = floor((_parent.x + k*x_incr)/scaleFactor);
+        yTemp = floor((_parent.y + k*y_incr)/scaleFactor);
+        Point::maze.passThrough(xTemp,yTemp);
+        k++;
+    }
+
+    xTemp = floor(x/scaleFactor);
+    yTemp = floor(y/scaleFactor);
+    Point::maze.passThrough(xTemp,yTemp);
+
+}
+
+void Position::start()
+{
+    int xTemp = floor(x/scaleFactor);
+    int yTemp = floor(y/scaleFactor);
+    Point::maze.write(xTemp, yTemp);
+}
+
+void Position::show(bool _closed, const Position & _parent)
+{
+    const int b = _closed?255:0, r = _closed?0:255;
+    if(x != _parent.x)
+        for(int i = floor(min(x, _parent.x)); i <= max(x, _parent.x);++i)
+            Point::maze.write(i, floor(y), r, 0, b, false);
+    else
+        for(int j = floor(min(y, _parent.y)); j <= max(y, _parent.y);++j)
+            Point::maze.write(floor(x), j, r, 0, b, false);
+    Point::maze.write(floor(x), floor(y), r, 0, b);
+}
+
+} // end of cpp file
+
+
+
+
+
+
+
+
+
+
+
 
 // This heurstic is currently used by the RobotPose class as well
 
@@ -33,20 +105,8 @@ bool Position::is(const Position &other)
 
 //}
 
-// This isFree is currently used by the RobotPose class as well
-// TODO: is this much okay??
-bool Position::isFree(){
-    if(Point::maze.isFree(x, y)){
-        return true;
-    }
-    return false;
-
-    }
-
 // TODO: Put some values here
 //float Position::distFromPosition(const Position &p){
 //    //
 //    return 1;
 //}
-
-}
