@@ -6,7 +6,6 @@ namespace ecn
 {
 
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
-
     // creates 2 different vector containing the possible choices that the two wheels can have.
     int scale = -1*vel_increment_limit;
     vector<float> r_vel_choice;
@@ -55,17 +54,12 @@ Position RobotPose::getNextPosition(pair<float,float> _vel_vel_omega){
     return Position(xPos, yPos, thetaPos);
 }
 
-// TODO: write this print correctly
-float RobotPose::distToParent()
-{
-    // in cell-based motion, the distance to the parent is always 1
-    return dist;
-}
 
-// TODO: write this print correctly
+
 std::vector<RobotPose::RobotPosePtr> RobotPose::children()
 {
-    std::vector<RobotPose::RobotPosePtr> generated;
+    // TODO: write this print correctly
+    std::vector<RobotPosePtr> generated;
     // this method should return  all positions reachable from this one
 
     // based on the vector of acceptable velocity generate different children
@@ -82,12 +76,20 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         if(!tempPosition.isFree()) continue; // skip this i
         // if valid create children
         // push in the generated vector
-        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition));
+       float tempdist = this->distFromPosition(tempPosition);
+        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition,tempdist));
     }
-
     return generated;
 }
 
+
+float RobotPose::distToParent()
+{
+    // TODO: write this print correctly
+    // in cell-based motion, the distance to the parent is always 1
+    //return dist;
+    return distance;
+}
 
 
 // check of two RobotPose are same or not

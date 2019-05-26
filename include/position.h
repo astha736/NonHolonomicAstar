@@ -80,6 +80,7 @@ namespace ecn
         // TODO: check the implementation
         bool isFree();
 
+        float distFromPosition(const Position &p);
 //        static float convertDegreeToRadian(int _deg);
 
     };

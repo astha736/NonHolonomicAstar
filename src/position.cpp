@@ -41,4 +41,11 @@ bool Position::isFree(){
     return false;
 
     }
+
+// TODO: Put some values here
+float Position::distFromPosition(const Position &p){
+    //
+    return 1;
+}
+
 }

@@ -32,7 +32,8 @@ public:
 
     float r_vel; // right angular velocity
     float l_vel; // left angular velocity
-    float dist;
+//    float dist;
+    float distance; // gives no error: Astha
 
 
     // const: since we don't want anyone to change this attribute
@@ -52,7 +53,7 @@ public:
     // constructor from coordinates
 
     // constructor from base ecn::Point
-    RobotPose(float _r_vel, float _l_vel, Position p ) : Position(p.x,p.y,p.theta) {
+    RobotPose(float _r_vel, float _l_vel, Position _p ) : Position(_p.x,_p.y,_p.theta) {
         r_vel = _r_vel;
         l_vel = _l_vel;
     }
@@ -62,7 +63,10 @@ public:
         l_vel = _l_vel;
     }
 
-    RobotPose(pairVel _vel,Position p ):RobotPose(_vel.right, _vel.left,p){}
+    RobotPose(pairVel _vel,Position _p ):RobotPose(_vel.right, _vel.left,_p){}
+    RobotPose(pairVel _vel,Position _p,float _dist ):RobotPose(_vel.right, _vel.left,_p){
+        distance = _dist;
+    }
 
     // assignmnet operator
     void operator=(const RobotPose &p)
