@@ -30,10 +30,11 @@ vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     // need to create the wheelVelVectorPair which can be directly be used to create valid childrens
     vector<RobotPose::pairVel> ret; // return variable
 
+//    cout << *this << endl;
     for(int i =0; i < rightWheelVel_choice.size(); i++){
         for(int j=0; j < leftWheelVel_choice.size(); j++){
             ret.push_back(RobotPose::pairVel(rightWheelVel_choice[i],leftWheelVel_choice[j]));
-
+//            cout << rightWheelVel_choice[i] <<":" << leftWheelVel_choice[j] << endl;
         }
     }
     return ret;
@@ -53,7 +54,7 @@ Position RobotPose::getNextPosition(pair<float,float> _linVel_angVel){
     float yPos = y+_linVel_angVel.first*timeStep*sin(theta);
 
     // pair.second = angular velocity
-    float thetaPos = theta + _linVel_angVel.second;
+    float thetaPos = theta + _linVel_angVel.second*timeStep;
     return Position(xPos, yPos, thetaPos);
 }
 
@@ -91,6 +92,9 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         // step5. make an object for the child with a unique_ptr
         generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition,tempdist));
     }
+//    for(int i = 0; i < generated.size(); i++){
+//        cout << *generated[i] << endl;
+//    }
     return generated;
 }
 
@@ -106,9 +110,14 @@ bool RobotPose::is(const RobotPose &_other)
     // check of two RobotPose are same or not
     Position othePosition = _other;
     Position* nodePosition = this;
-    if(nodePosition->is(othePosition) &&
-            (_other.leftWheelVel - wheelVelocityTolerance <= leftWheelVel <= _other.leftWheelVel + wheelVelocityTolerance) &&
-            (_other.rightWheelVel - wheelVelocityTolerance <= rightWheelVel <= _other.rightWheelVel + wheelVelocityTolerance))
+
+    bool clauseA = nodePosition->is(othePosition) ;
+    bool clauseB = ((_other.leftWheelVel - wheelVelocityTolerance) <= this->leftWheelVel)
+            && (this->leftWheelVel <= (_other.leftWheelVel + wheelVelocityTolerance)) ;
+    bool clauseC = ((_other.rightWheelVel - wheelVelocityTolerance) <= this->rightWheelVel)
+            && (this->rightWheelVel <= (_other.rightWheelVel + wheelVelocityTolerance)) ;
+
+    if(clauseA && clauseB && clauseC)
     {
         return 1;
     }

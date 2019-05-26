@@ -13,10 +13,10 @@ using namespace ecn;
 int main( int argc, char **argv )
 {
 //    int x_begin = 0;
-//    int x_end = 0;
+    int x_end = 10;
 
 //    int y_begin = 0;
-//    int y_end = 0;
+    int y_end = 0;
 
     // let theta be between 0 to 360
     int thetaBegin = 0;
@@ -44,6 +44,7 @@ int main( int argc, char **argv )
 
     Position beginPosition(beginMaze,thetaBegin);
     Position endPosition(endMaze,thetaEnd);
+//    Position endPosition(x_end, y_end, thetaEnd);
 
     //    Position beginPosition(x_begin,y_begin,thetaBegin);
     //    Position endPosition(x_end, y_end, thetaBegin);
@@ -56,6 +57,12 @@ int main( int argc, char **argv )
 
     cout << "beginRobotPose: " << beginRobotPose << std::endl;
     cout << "endRobotPose: " << endRobotPose << std::endl;
+
+
+//    RobotPose p1(1,1,10.2,0.2,0.1);
+//    cout << "p1:  " << p1 << endl;
+//    cout  << "end: " << endRobotPose << endl;
+//    cout << p1.is(endRobotPose) << endl;
 
     // // call A* algorithm
     ecn::Astar(beginRobotPose, endRobotPose);

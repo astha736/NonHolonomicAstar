@@ -12,9 +12,14 @@ namespace ecn
 bool Position::is(const Position &_other)
 {
     // Check: two positions are equal - with added tolerances along x, y and theta
-    if((_other.x - xTolerance <= x <= _other.x + xTolerance) &&
-       (_other.y - yTolerance <= y <= _other.y + yTolerance) &&
-       (_other.theta - thetaTolerance <= theta <= _other.theta + thetaTolerance)){
+    bool clauseX    = ((_other.x - xTolerance) <= this->x)
+            &&  (this->x <= (_other.x + xTolerance));
+    bool clauseY    = ((_other.y - yTolerance) <= this->y)
+            &&  (this->y <= (_other.y + yTolerance));
+    bool clauseTheta= ((_other.theta - thetaTolerance) <= this->theta)
+            &&  (this->theta <= (_other.theta + thetaTolerance));
+
+    if( clauseX && clauseY && clauseTheta){
         return 1;
     }
     return 0;

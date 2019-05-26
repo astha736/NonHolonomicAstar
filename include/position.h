@@ -21,9 +21,9 @@ namespace ecn
 
     protected:
         // tolerances along x,y and theta to be ignored whiel some comparison
-        static constexpr float xTolerance = 0; //cm
-        static constexpr float yTolerance = 0;
-        static constexpr float thetaTolerance = 0; // degree
+        static constexpr float xTolerance = 0.5; //cm
+        static constexpr float yTolerance = 0.5;
+        static constexpr float thetaTolerance = 15; // degree
 
         // for future use
         static constexpr float scaleFactor = 1; // assumption( 1 pixel = scaleFactor x 1 cm : minimum step of the robot)
@@ -61,7 +61,7 @@ namespace ecn
         // cout template
         friend std::ostream& operator<<(std::ostream& _out, const Position& _p)
         {
-            _out << "(X:" << _p.x << ",Y: " << _p.y << ",theta:" << _p.theta << ")" ;
+            _out << "(" << _p.x << "," << _p.y << "," << _p.theta << ")" ;
             return _out;
         }
 

@@ -29,7 +29,7 @@ public:
 
     float rightWheelVel;    // right wheel velocity
     float leftWheelVel;     // left wheel velocity
-    float distance;         // distance of this node from its parent
+    float distance = 0;         // distance of this node from its parent
 
     static constexpr float rWheel = 1; // wheel radius
     static constexpr float tGauge = 1; // track gauge
@@ -37,7 +37,7 @@ public:
 
     static constexpr float wheelVelocityMax = 10; // max angular velocity for any wheel
     static constexpr float wheelVelocityMin = -10; // min angular velocity for any wheel
-    static constexpr float wheelVelocityTolerance = 0; // angular velocity tolerance to be used in comparison
+    static constexpr float wheelVelocityTolerance = 1; // angular velocity tolerance to be used in comparison
 
     static constexpr float velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
     static constexpr float velocityIncrementStep = 1;
@@ -81,7 +81,7 @@ public:
     // Suggest how the object of such data type should be printed
     friend std::ostream& operator<<(std::ostream& _out, const RobotPose& _p)
     {
-        _out << "(X:" << _p.x << ",Y: " << _p.y << ",theta:" << _p.theta << ",rightWheelVel:" << _p.rightWheelVel << ",leftWheelVel:" << _p.leftWheelVel << ")" ;
+        _out << "(" << _p.rightWheelVel << "," << _p.leftWheelVel  << "," << _p.x << "," << _p.y << "," << _p.theta << ")" ;
         return _out;
     }
 
