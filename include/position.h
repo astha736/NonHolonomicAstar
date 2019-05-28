@@ -75,6 +75,7 @@ namespace ecn
         void print(const Position &_parent);
         void start(); // Used inside the maze.h code
         void show(bool _closed, const Position &_parent);
+        int scaleAndFloor(float _float);
 
     };
 }

@@ -12,11 +12,11 @@ using namespace ecn;
 
 int main( int argc, char **argv )
 {
-//    int x_begin = 0;
-    int x_end = 10;
+    int x_begin = 0;
+    int x_end = 25;
 
-//    int y_begin = 0;
-    int y_end = 0;
+    int y_begin = 0;
+    int y_end = 30;
 
     // let theta be between 0 to 360
     int thetaBegin = 0;
@@ -29,22 +29,22 @@ int main( int argc, char **argv )
     int leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze_basic.png";
+    std::string filename = "maze_basic_2.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
     // let Point know about this maze
     Point::maze.load(filename);
 
-    Point beginMaze =  Point::begin();
-    Point endMaze =  Point::end();
-    cout << "begin Maze: " << beginMaze << std::endl;
-    cout << "end Maze: " << endMaze << std::endl;
+//    Point beginMaze =  Point::begin();
+//    Point endMaze =  Point::end();
+//    cout << "begin Maze: " << beginMaze << std::endl;
+//    cout << "end Maze: " << endMaze << std::endl;
     // initial and end positions as Position's
 
     Position beginPosition(beginMaze,thetaBegin);
-    Position endPosition(endMaze,thetaEnd);
-//    Position endPosition(x_end, y_end, thetaEnd);
+//    Position endPosition(endMaze,thetaEnd);
+    Position endPosition(x_end, y_end, thetaEnd);
 
     //    Position beginPosition(x_begin,y_begin,thetaBegin);
     //    Position endPosition(x_end, y_end, thetaBegin);
@@ -65,10 +65,21 @@ int main( int argc, char **argv )
 //    cout << p1.is(endRobotPose) << endl;
 
     // // call A* algorithm
-    ecn::Astar(beginRobotPose, endRobotPose);
+//    if(!beginMaze.isFree()){
+//        cout<<"wrong begin point"<<endl;
+//        return 0;
+//    }
+//    if(!Point::maze.isFree(x_end,y_end)){
+//        cout<<"wrong end point"<<endl;
+//        return 0;
+//    }
+
+    cout << Point::maze.isFree(x_end,y_end) << std::endl;
+
+//    ecn::Astar(beginRobotPose, endRobotPose);
 
     // save final image
-    // Point::maze.saveSolution("cell");
+    Point::maze.saveSolution("cell");
     cv::waitKey(0);
 
 }
