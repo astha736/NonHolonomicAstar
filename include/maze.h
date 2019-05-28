@@ -36,11 +36,8 @@ public:
 
     bool isFree(int x, int y) const
     {
-      std::cout<<"x is: "<<x<<std::endl;
-      std::cout<<"y is: "<<y<<std::endl;
       if(x < 0 || y < 0 || x >= im.cols || y >= im.rows)
           return 0;
-      std::cout<<"pixel status is: "<<im.at<uchar>(y,x)<<std::endl;
       return im.at<uchar>(y,x);
       }
 
@@ -109,7 +106,7 @@ public:
 
         int dot = filename.find(".");
         std::string name = filename.substr(0, dot) + "_" + suffix + ".png";
-        cv::imwrite("../mazes/" + name, out);
+        cv::imwrite("../mazes/results" + name, out);
         display("Solution", out);
     }
 // protected:

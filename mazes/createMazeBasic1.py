@@ -17,7 +17,7 @@ maze[r:r+obstacle.shape[0], c:c+obstacle.shape[1],:] = obstacle
 
 # Mat b = cv.fromarray(maze)
 
-cv2.imwrite('maze_basic.png', maze)
+cv2.imwrite('maze_basic_1.png', maze)
 # cv2.imshow('maze_basic', maze)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

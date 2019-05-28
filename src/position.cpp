@@ -25,14 +25,14 @@ bool Position::is(const Position &_other)
     return 0;
 }
 
-int Position::scaleAndFloor(float _float){
-    return floor(_float/scaleFactor);
+int Position::scaleAndRound(float _float){
+    return round(_float/scaleFactor);
 }
 
 bool Position::isFree(){
     // This isFree is currently used by the RobotPose class as well
-    int xTemp = scaleAndFloor(x);// floor(x/scaleFactor);
-    int yTemp = scaleAndFloor(y);// floor(y/scaleFactor);
+    int xTemp = scaleAndRound(x);// floor(x/scaleFactor);
+    int yTemp = scaleAndRound(y);// floor(y/scaleFactor);
     if(Point::maze.isFree(xTemp,yTemp)){
         return true;
     }
@@ -41,44 +41,17 @@ bool Position::isFree(){
 
 void Position::print(const Position &_parent)
 {
-    // TODO: check if parent needs to be typecasted to int
-//    int x_incr(0), y_incr(0);
-//    // may need to change incase we assume anything other than 1 pix <=> 1 cm
-
-//    // check if the parent is different from child
-//    if(x - _parent.x)
-//        x_incr = x - _parent.x > 0 ? 1 : -1;
-//    else
-//        y_incr = y - _parent.y > 0 ? 1 : -1;
-
-//    int k = 1;
-//    int xTemp, yTemp;
-//    cout << "_parent.y : "<<_parent.y<<endl;
-//    while(_parent.x + k*x_incr != x || _parent.y + k*y_incr != y)
-//    while(floor(_parent.x + k*x_incr) != floor(x) || floor(_parent.y + k*y_incr) != floor(y) && k < 100)
-//    {
-//        cout << "_parent.y + k*y_inc is: "<<(_parent.y + k*y_incr)<<endl;
-//        cout << "y is: "<<(y)<<endl;
-
-//        xTemp = floor((_parent.x + k*x_incr)/scaleFactor);
-//        yTemp = floor((_parent.y + k*y_incr)/scaleFactor);
-//        Point::maze.passThrough(xTemp,yTemp);
-//        cout << "xtemp is: "<<xTemp<<endl;
-//        cout << "ytemp is: "<<yTemp<<endl;
-//        cout << "k is: "<<k<<endl;
-//        k++;
-//    }
-
-    int xTemp = scaleAndFloor(x);// floor(x/scaleFactor);
-    int yTemp = scaleAndFloor(y);// floor(y/scaleFactor);
+    int xTemp = scaleAndRound(x);// floor(x/scaleFactor);
+    int yTemp = scaleAndRound(y);// floor(y/scaleFactor);
     Point::maze.passThrough(xTemp,yTemp);
+    cout << *this << endl;
 
 }
 
 void Position::start()
 {
-    int xTemp = scaleAndFloor(x);//floor(x/scaleFactor);
-    int yTemp = scaleAndFloor(y);//floor(y/scaleFactor);
+    int xTemp = scaleAndRound(x);//floor(x/scaleFactor);
+    int yTemp = scaleAndRound(y);//floor(y/scaleFactor);
     Point::maze.write(xTemp, yTemp);
 }
 
