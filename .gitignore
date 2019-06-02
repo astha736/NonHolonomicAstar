@@ -1,8 +1,4 @@
 *build/
 *log/
-*.jpg
-<<<<<<< HEAD
 *.pdf
-=======
->>>>>>> Python script to generate simple maze
 *.user

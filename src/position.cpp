@@ -25,14 +25,14 @@ bool Position::is(const Position &_other)
     return 0;
 }
 
-int Position::scaleAndRound(float _float){
-    return round(_float/scaleFactor);
+int Position::scaleAndFloor(float _float){
+    return floor(_float/scaleFactor);
 }
 
 bool Position::isFree(){
     // This isFree is currently used by the RobotPose class as well
-    int xTemp = scaleAndRound(x);// floor(x/scaleFactor);
-    int yTemp = scaleAndRound(y);// floor(y/scaleFactor);
+    int xTemp = scaleAndFloor(x);// floor(x/scaleFactor);
+    int yTemp = scaleAndFloor(y);// floor(y/scaleFactor);
     if(Point::maze.isFree(xTemp,yTemp)){
         return true;
     }
@@ -41,8 +41,8 @@ bool Position::isFree(){
 
 void Position::print(const Position &_parent)
 {
-    int xTemp = scaleAndRound(x);// floor(x/scaleFactor);
-    int yTemp = scaleAndRound(y);// floor(y/scaleFactor);
+    int xTemp = scaleAndFloor(x);// floor(x/scaleFactor);
+    int yTemp = scaleAndFloor(y);// floor(y/scaleFactor);
     Point::maze.passThrough(xTemp,yTemp);
     cout << *this << endl;
 
@@ -50,8 +50,8 @@ void Position::print(const Position &_parent)
 
 void Position::start()
 {
-    int xTemp = scaleAndRound(x);//floor(x/scaleFactor);
-    int yTemp = scaleAndRound(y);//floor(y/scaleFactor);
+    int xTemp = scaleAndFloor(x);//floor(x/scaleFactor);
+    int yTemp = scaleAndFloor(y);//floor(y/scaleFactor);
     Point::maze.write(xTemp, yTemp);
 }
 

@@ -42,7 +42,7 @@ vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
 
 pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
     pair<float,float> returnVel;
-    returnVel.first = (rWheel*_vel_wheel.right + rWheel*_vel_wheel.left)/2;
+    returnVel.first = ((rWheel*_vel_wheel.right + rWheel*_vel_wheel.left)/2); //*(M_PI/180);
     returnVel.second = (rWheel*_vel_wheel.right - rWheel*_vel_wheel.left)/(2*tGauge);
     return returnVel;
 }
@@ -50,8 +50,8 @@ pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
 Position RobotPose::getNextPosition(pair<float,float> _linVel_angVel){
 
     // pair.first = linear velocity
-    float xPos = x+_linVel_angVel.first*timeStep*cos(theta * M_PI/180);
-    float yPos = y+_linVel_angVel.first*timeStep*sin(theta * M_PI/180);
+    float xPos = x+_linVel_angVel.first*timeStep*cos(theta);// * M_PI/180);
+    float yPos = y+_linVel_angVel.first*timeStep*sin(theta); //* M_PI/180);
 
     // pair.second = angular velocity
     float thetaPos = theta + _linVel_angVel.second*timeStep;

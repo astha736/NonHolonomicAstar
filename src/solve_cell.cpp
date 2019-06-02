@@ -14,14 +14,14 @@ using namespace ecn;
 
 int main( int argc, char **argv )
 {
-    int x_begin = 0, y_begin = 0, thetaBegin = 0;
-    int x_end = 27,  y_end = 15,  thetaEnd = 45 ;
+    float x_begin = 0, y_begin = 0, thetaBegin = 0;
+    float x_end = 5,  y_end = 5,  thetaEnd = 0 ;
 
-    int rightVelBegin = 0, rightVelEnd = 0;
-    int leftVelBegin = 0, leftVelEnd = 0;
+    float rightVelBegin = 0, rightVelEnd = 0;
+    float leftVelBegin = 0, leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze_basic_3.png";
+    std::string filename = "maze_basic_2.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
@@ -53,7 +53,7 @@ int main( int argc, char **argv )
     ecn::Astar(beginRobotPose, endRobotPose);
 
     // save final image
-    Point::maze.saveSolution("result_27_15_45");
+    Point::maze.saveSolution("result_5_5_0");
     cv::waitKey(0);
 
 }

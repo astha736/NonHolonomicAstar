@@ -39,7 +39,7 @@ public:
     static constexpr float wheelVelocityMin = -10; // min angular velocity for any wheel
     static constexpr float wheelVelocityTolerance = 1; // angular velocity tolerance to be used in comparison
 
-    static constexpr float velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
+    static constexpr float velocityIncrementLimit = 5; // limit of +-rightWheelVel and leftWheelVel from current state
     static constexpr float velocityIncrementStep = 1;
 
     RobotPose(float _rightWheelVel, float _leftWheelVel, Position _p ) : Position(_p.x,_p.y,_p.theta) {

@@ -21,8 +21,8 @@ namespace ecn
 
     protected:
         // tolerances along x,y and theta to be ignored whiel some comparison
-        static constexpr float xTolerance = 0.5; //cm
-        static constexpr float yTolerance = 0.5;
+        static constexpr float xTolerance = 1; //cm
+        static constexpr float yTolerance = 1;
         static constexpr float thetaTolerance = 15; // degree
 
         // for future use
@@ -75,7 +75,7 @@ namespace ecn
         void print(const Position &_parent);
         void start(); // Used inside the maze.h code
         void show(bool _closed, const Position &_parent);
-        int scaleAndRound(float _float);
+        int scaleAndFloor(float _float);
 
     };
 }
