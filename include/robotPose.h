@@ -33,7 +33,7 @@ public:
 
     static constexpr float rWheel = 1; // wheel radius
     static constexpr float tGauge = 1; // track gauge
-    static constexpr float timeStep = 1; // time step
+    // static constexpr float timeStep = 1; // default time step
 
     static constexpr float wheelVelocityMax = 10; // max angular velocity for any wheel
     static constexpr float wheelVelocityMin = -10; // min angular velocity for any wheel
@@ -42,7 +42,15 @@ public:
     static constexpr float velocityIncrementLimit = 5; // limit of +-rightWheelVel and leftWheelVel from current state
     static constexpr float velocityIncrementStep = 1;
 
-    RobotPose(float _rightWheelVel, float _leftWheelVel, Position _p ) : Position(_p.x,_p.y,_p.theta) {
+    static constexpr float bigTimeStep = 4; // largest time step
+
+    float timeStep = 1; // the variable timestep (default value = 1s)
+
+//    static Position goalPosition;
+//    static pairVel goalWheelVelocities;
+    static RobotPose goalPose;
+
+    RobotPose(float _rightWheelVel, float _leftWheelVel, Position _p) : Position(_p.x,_p.y,_p.theta) {
         rightWheelVel = _rightWheelVel;
         leftWheelVel = _leftWheelVel;
     }
@@ -52,9 +60,11 @@ public:
         leftWheelVel = _leftWheelVel;
     }
 
-    RobotPose(pairVel _vel,Position _p ):RobotPose(_vel.right, _vel.left,_p){}
-    RobotPose(pairVel _vel,Position _p,float _dist ):RobotPose(_vel.right, _vel.left,_p){
+    RobotPose(pairVel _vel,Position _p ) : RobotPose(_vel.right, _vel.left,_p){}
+
+    RobotPose(pairVel _vel,Position _p, float _dist, float _timeStep) : RobotPose(_vel.right, _vel.left,_p){
         distance = _dist;
+        timeStep = _timeStep;
     }
 
     void operator=(const RobotPose &_p)
@@ -75,7 +85,7 @@ public:
 
 
     // method that takes v, w and generates Position we can reach (assuming 1 sec time step)
-    Position getNextPosition(pair<float,float> _linVel_angVel);
+    Position getNextPosition(pair<float,float> _linVel_angVel, float _timeStep);
 
 
     // Suggest how the object of such data type should be printed
@@ -95,10 +105,24 @@ public:
 
     // calculates the distance traveled by robot travelling at wheel velocity pair
     // will be used to calculate the distance attribute of the children
-    float distTravelled(pairVel _wheelVelocityPair);
+    float distTravelled(pairVel _wheelVelocityPair, float _timeStep);
 
     //heuristic
     float h(const RobotPose &_goal, bool useManhattan);
+
+//    void setGoalPosition(Position _goalPosition); // setter method for the goal position
+//    void setGoalWheelVelocities(pairVel _goalWheelVelocities); // setter method for the goal wheel angular velocities
+
+    void setGoalPose(RobotPose _goalPose);/*{
+         goalPose = _goalPose;
+    } // setter method for the goal wheel angular velocities*/
+
+    float getHeuristicDistance(){
+        return this->h(goalPose, true);
+    }
+
+    float calcTimeStep(float _hDistance); // calculate the time step on basis of the heuristic distance
+
 
 };
 }

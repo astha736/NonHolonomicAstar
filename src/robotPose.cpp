@@ -5,6 +5,8 @@
 namespace ecn
 {
 
+RobotPose RobotPose::goalPose(0,0,0,0,0);
+
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     // creates 2 different vector containing the possible choices that the two wheels can have.
     int scale = -1*velocityIncrementLimit;
@@ -47,22 +49,42 @@ pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
     return returnVel;
 }
 
-Position RobotPose::getNextPosition(pair<float,float> _linVel_angVel){
+Position RobotPose::getNextPosition(pair<float,float> _linVel_angVel, float _timeStep){
 
     // pair.first = linear velocity
-    float xPos = x+_linVel_angVel.first*timeStep*cos(theta);// * M_PI/180);
-    float yPos = y+_linVel_angVel.first*timeStep*sin(theta); //* M_PI/180);
+    float xPos = x+_linVel_angVel.first*_timeStep*cos(theta);// * M_PI/180);
+    float yPos = y+_linVel_angVel.first*_timeStep*sin(theta); //* M_PI/180);
 
     // pair.second = angular velocity
-    float thetaPos = theta + _linVel_angVel.second*timeStep;
+    float thetaPos = theta + _linVel_angVel.second*_timeStep;
     return Position(xPos, yPos, thetaPos);
 }
 
-float RobotPose::distTravelled(pairVel _wheelVelocityPair){
+float RobotPose::distTravelled(pairVel _wheelVelocityPair, float _timeStep){
     // returns the distance travelled by the robot
     // distance taken as the average of wheel rotations during motion from parent to child
     // in 1 time-step
-    return (abs((_wheelVelocityPair.left)*timeStep) + abs((_wheelVelocityPair.right)*timeStep))/2;
+    return (abs((_wheelVelocityPair.left)*_timeStep) + abs((_wheelVelocityPair.right)*_timeStep))/2;
+}
+
+////
+float RobotPose::calcTimeStep(float _hDistance){
+    if(_hDistance >= 12*M_PI){
+        return bigTimeStep;
+    }
+    else if (_hDistance < 12*M_PI && _hDistance >= 8*M_PI ){
+        return (3/4)*bigTimeStep;
+    }
+    else if (_hDistance < 8*M_PI && _hDistance >= 4*M_PI ){
+        return (2/4)*bigTimeStep;
+    }
+    else {
+        return (1/4)*bigTimeStep;
+    }
+}
+
+void RobotPose::setGoalPose(RobotPose _goalPose){
+     goalPose = _goalPose;
 }
 
 std::vector<RobotPose::RobotPosePtr> RobotPose::children()
@@ -71,8 +93,8 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
     std::vector<RobotPosePtr> generated;
 
     // based on the vector of acceptable velocity generate different children
-    vector<RobotPose::pairVel> velChoices;
-    velChoices = RobotPose::generateVelChoices();
+    vector<pairVel> velChoices;
+    velChoices = generateVelChoices();
 
     // for all the possible generated combination create children
     for(int i=0; i < velChoices.size(); i++){
@@ -80,17 +102,28 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         // step1. calculate lin-vel and ang-vel
         pair<float,float> tempVelWheel = RobotPose::robotVelocity(velChoices[i]);
 
+
+//        // step1.1 make the goal robot pose
+//        RobotPose goalPose(goalWheelVelocities, goalPosition);
+
+        // step1.2 find the heuristic distance to this goal pose
+//        float heuristicDistance = getHeuristicDistance();
+        float heuristicDistance = this->h(goalPose,true);
+
+        // step1.3 calculate the time step based on the heuristic
+        float tempTimeStep = calcTimeStep(heuristicDistance);
+
         // step2. calculate the (x,y,theta) of the possible child node  
-        Position tempPosition  = RobotPose::getNextPosition(tempVelWheel);
+        Position tempPosition  = RobotPose::getNextPosition(tempVelWheel, tempTimeStep);
         
         // step3. check if the child node is free(valid) or not
         if(!tempPosition.isFree()) continue; // skip this iteration if not free
 
         // step4. calculate distance of the child from this node(parent)
-        float tempdist = distTravelled(velChoices[i]);
+        float tempdist = distTravelled(velChoices[i], tempTimeStep);
 
         // step5. make an object for the child with a unique_ptr
-        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition,tempdist));
+        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition,tempdist,tempTimeStep));
     }
 //    for(int i = 0; i < generated.size(); i++){
 //        cout << *generated[i] << endl;

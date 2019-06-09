@@ -28,11 +28,15 @@ int main( int argc, char **argv )
     // let Point know about this maze
     Point::maze.load(filename);
 
+
     Position beginPosition(x_begin, y_begin, thetaBegin);
     Position endPosition(x_end, y_end, thetaEnd);
 
     RobotPose beginRobotPose(rightVelBegin,leftVelBegin, beginPosition);
     RobotPose endRobotPose(rightVelEnd,leftVelEnd, endPosition);
+
+//    RobotPose::goalPose = endRobotPose;
+    endRobotPose.setGoalPose(endRobotPose);
 
     cout << "beginRobotPose: " << beginRobotPose << std::endl;
     cout << "endRobotPose: " << endRobotPose << std::endl;
