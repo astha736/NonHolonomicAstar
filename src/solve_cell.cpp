@@ -57,7 +57,7 @@ int main( int argc, char **argv )
     ecn::Astar(beginRobotPose, endRobotPose);
 
     // save final image
-    Point::maze.saveSolution("result_5_5_0");
+    Point::maze.saveSolution("result_5_5_0_small_step_print_issue");
     cv::waitKey(0);
 
 }

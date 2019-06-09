@@ -30,6 +30,9 @@ public:
     float rightWheelVel;    // right wheel velocity
     float leftWheelVel;     // left wheel velocity
     float distance = 0;         // distance of this node from its parent
+    float timeStep = 1; // the variable timestep (default value = 1s)
+
+    static RobotPose goalPose;
 
     static constexpr float rWheel = 1; // wheel radius
     static constexpr float tGauge = 1; // track gauge
@@ -44,29 +47,26 @@ public:
 
     static constexpr float bigTimeStep = 4; // largest time step
 
-    float timeStep = 1; // the variable timestep (default value = 1s)
-
-//    static Position goalPosition;
-//    static pairVel goalWheelVelocities;
-    static RobotPose goalPose;
-
+    // construtor
     RobotPose(float _rightWheelVel, float _leftWheelVel, Position _p) : Position(_p.x,_p.y,_p.theta) {
         rightWheelVel = _rightWheelVel;
         leftWheelVel = _leftWheelVel;
     }
-
+    // construtor
     RobotPose(float _rightWheelVel, float _leftWheelVel, float _x, float _y, float _theta) : Position(_x, _y, _theta) {
         rightWheelVel = _rightWheelVel;
         leftWheelVel = _leftWheelVel;
     }
-
+    // construtor
     RobotPose(pairVel _vel,Position _p ) : RobotPose(_vel.right, _vel.left,_p){}
 
+    // construtor
     RobotPose(pairVel _vel,Position _p, float _dist, float _timeStep) : RobotPose(_vel.right, _vel.left,_p){
         distance = _dist;
         timeStep = _timeStep;
     }
 
+    // operator overloading
     void operator=(const RobotPose &_p)
     {
         x = _p.x;
@@ -82,11 +82,6 @@ public:
     // Converting wheel velocites to linear and angular velocities stored in robotVelocity
     // for a (2,0) robot <linear, angular>
     static pair<float,float> robotVelocity(pairVel _vel_wheel);
-
-
-    // method that takes v, w and generates Position we can reach (assuming 1 sec time step)
-    Position getNextPosition(pair<float,float> _linVel_angVel, float _timeStep);
-
 
     // Suggest how the object of such data type should be printed
     friend std::ostream& operator<<(std::ostream& _out, const RobotPose& _p)
@@ -110,19 +105,19 @@ public:
     //heuristic
     float h(const RobotPose &_goal, bool useManhattan);
 
-//    void setGoalPosition(Position _goalPosition); // setter method for the goal position
-//    void setGoalWheelVelocities(pairVel _goalWheelVelocities); // setter method for the goal wheel angular velocities
+    void setGoalPose(RobotPose _goalPose);
 
-    void setGoalPose(RobotPose _goalPose);/*{
-         goalPose = _goalPose;
-    } // setter method for the goal wheel angular velocities*/
+    // calculate the time step on basis of the heuristic distance
+    float calcTimeStep(float _hDistance);
 
-    float getHeuristicDistance(){
-        return this->h(goalPose, true);
-    }
+    // calculate newPosition and its validity from start, velovities and timestep
+    pair<bool,Position> validPathPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _timeStep );
 
-    float calcTimeStep(float _hDistance); // calculate the time step on basis of the heuristic distance
+    // implementing dicrete integration
+    Position getNewStepPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _delTime );
 
+    // prints all the maze cell visited in between this node and its parents
+    void print(const RobotPose &_parent);
 
 };
 }

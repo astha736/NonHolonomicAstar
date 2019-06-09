@@ -7,6 +7,102 @@ namespace ecn
 
 RobotPose RobotPose::goalPose(0,0,0,0,0);
 
+float RobotPose::distToParent()
+{
+    return distance;
+}
+
+void RobotPose::setGoalPose(RobotPose _goalPose){
+     goalPose = _goalPose;
+}
+
+pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
+    pair<float,float> returnVel;
+    returnVel.first = ((rWheel*_vel_wheel.right + rWheel*_vel_wheel.left)/2); //*(M_PI/180);
+    returnVel.second = (rWheel*_vel_wheel.right - rWheel*_vel_wheel.left)/(2*tGauge);
+    return returnVel;
+}
+
+
+void RobotPose::print(const RobotPose &_parent)
+{
+    std::cout << "******** ((())))))) " << std::endl;
+    std::cout << "parent: " << _parent << std::endl;
+    std::cout << "child: " << *this << std::endl;
+    std::cout << "timestep: " << this->timeStep << std::endl;
+    Position tempPosition = _parent;
+    pair<float,float> linVel_angVel = robotVelocity(pairVel(this->rightWheelVel, this->leftWheelVel));
+
+    for(int smallStep =0; smallStep < this->timeStep; smallStep++){
+        std::cout << "smallStep: " << smallStep << std::endl;
+     // maybe implemet float delT = 0.1;
+        float delT = 0;
+        while(delT < 1){
+            delT = delT + 0.1;
+            tempPosition = getNewStepPosition(tempPosition, linVel_angVel, delT );
+            if(!tempPosition.isFree()) continue;
+            int xTemp = scaleAndFloor(tempPosition.x);// floor(x/scaleFactor);
+            int yTemp = scaleAndFloor(tempPosition.y);// floor(y/scaleFactor);
+            Point::maze.passThrough(xTemp,yTemp);
+
+            std::cout << "********" << std::endl;
+             std::cout << "delT: " << delT << std::endl;
+            std::cout <<"tempPosition"  << tempPosition << std::endl;
+        }
+    }
+
+}
+
+
+pair<bool,Position> RobotPose::validPathPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _timeStep ){
+    Position tempPosition = _startPosition;
+    for(int smallStep =0; smallStep < _timeStep; smallStep++){
+     // maybe implemet float delT = 0.1;
+        float delT = 1;
+        tempPosition = getNewStepPosition(tempPosition, _linVel_angVel, delT );
+        if(!tempPosition.isFree()) return make_pair(false,tempPosition);
+    }
+    return make_pair(true,tempPosition);
+}
+
+Position RobotPose::getNewStepPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _delTime ){
+    // don't know what is the correct approx theta -> discuss
+
+    // pair.first = linear velocity
+    float thetaPos = _startPosition.theta + _linVel_angVel.second*_delTime;
+
+    // probably this theta calcilation is not correvt
+    float xPos = _startPosition.x+ _linVel_angVel.first*_delTime*cos(_startPosition.theta );// * M_PI/180);
+    float yPos = _startPosition.y+ _linVel_angVel.first*_delTime*sin(_startPosition.theta ); //* M_PI/180);
+
+    // pair.second = angular velocity
+    return Position(xPos, yPos, thetaPos);
+
+}
+
+float RobotPose::distTravelled(pairVel _wheelVelocityPair, float _timeStep){
+    // returns the distance travelled by the robot
+    // distance taken as the average of wheel rotations during motion from parent to child
+    // in 1 time-step
+    return (abs((_wheelVelocityPair.left)*_timeStep) + abs((_wheelVelocityPair.right)*_timeStep))/2;
+}
+
+float RobotPose::calcTimeStep(float _hDistance){
+    float noOfWheelRevolution = _hDistance/M_PI;
+    if(noOfWheelRevolution >= 12){
+        return bigTimeStep;
+    }
+    else if (noOfWheelRevolution < 12 && noOfWheelRevolution >= 8){
+        return ((3*bigTimeStep)/4);
+    }
+    else if (noOfWheelRevolution < 8 && noOfWheelRevolution >= 4 ){
+        return ((2*bigTimeStep)/4);
+    }
+    else {
+        return ((1*bigTimeStep)/4);
+    }
+}
+
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     // creates 2 different vector containing the possible choices that the two wheels can have.
     int scale = -1*velocityIncrementLimit;
@@ -32,59 +128,12 @@ vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     // need to create the wheelVelVectorPair which can be directly be used to create valid childrens
     vector<RobotPose::pairVel> ret; // return variable
 
-//    cout << *this << endl;
     for(int i =0; i < rightWheelVel_choice.size(); i++){
         for(int j=0; j < leftWheelVel_choice.size(); j++){
             ret.push_back(RobotPose::pairVel(rightWheelVel_choice[i],leftWheelVel_choice[j]));
-//            cout << rightWheelVel_choice[i] <<":" << leftWheelVel_choice[j] << endl;
         }
     }
     return ret;
-}
-
-pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
-    pair<float,float> returnVel;
-    returnVel.first = ((rWheel*_vel_wheel.right + rWheel*_vel_wheel.left)/2); //*(M_PI/180);
-    returnVel.second = (rWheel*_vel_wheel.right - rWheel*_vel_wheel.left)/(2*tGauge);
-    return returnVel;
-}
-
-Position RobotPose::getNextPosition(pair<float,float> _linVel_angVel, float _timeStep){
-
-    // pair.first = linear velocity
-    float xPos = x+_linVel_angVel.first*_timeStep*cos(theta);// * M_PI/180);
-    float yPos = y+_linVel_angVel.first*_timeStep*sin(theta); //* M_PI/180);
-
-    // pair.second = angular velocity
-    float thetaPos = theta + _linVel_angVel.second*_timeStep;
-    return Position(xPos, yPos, thetaPos);
-}
-
-float RobotPose::distTravelled(pairVel _wheelVelocityPair, float _timeStep){
-    // returns the distance travelled by the robot
-    // distance taken as the average of wheel rotations during motion from parent to child
-    // in 1 time-step
-    return (abs((_wheelVelocityPair.left)*_timeStep) + abs((_wheelVelocityPair.right)*_timeStep))/2;
-}
-
-////
-float RobotPose::calcTimeStep(float _hDistance){
-    if(_hDistance >= 12*M_PI){
-        return bigTimeStep;
-    }
-    else if (_hDistance < 12*M_PI && _hDistance >= 8*M_PI ){
-        return (3/4)*bigTimeStep;
-    }
-    else if (_hDistance < 8*M_PI && _hDistance >= 4*M_PI ){
-        return (2/4)*bigTimeStep;
-    }
-    else {
-        return (1/4)*bigTimeStep;
-    }
-}
-
-void RobotPose::setGoalPose(RobotPose _goalPose){
-     goalPose = _goalPose;
 }
 
 std::vector<RobotPose::RobotPosePtr> RobotPose::children()
@@ -100,42 +149,28 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
     for(int i=0; i < velChoices.size(); i++){
 
         // step1. calculate lin-vel and ang-vel
-        pair<float,float> tempVelWheel = RobotPose::robotVelocity(velChoices[i]);
-
-
-//        // step1.1 make the goal robot pose
-//        RobotPose goalPose(goalWheelVelocities, goalPosition);
+        pair<float,float> tempVelWheel = robotVelocity(velChoices[i]);
 
         // step1.2 find the heuristic distance to this goal pose
-//        float heuristicDistance = getHeuristicDistance();
         float heuristicDistance = this->h(goalPose,true);
 
         // step1.3 calculate the time step based on the heuristic
         float tempTimeStep = calcTimeStep(heuristicDistance);
 
-        // step2. calculate the (x,y,theta) of the possible child node  
-        Position tempPosition  = RobotPose::getNextPosition(tempVelWheel, tempTimeStep);
+        // step2. calculate the (x,y,theta) of the possible child node
+         std::pair<bool,Position> tempPairBoolPos = validPathPosition(*this,tempVelWheel, tempTimeStep);
         
         // step3. check if the child node is free(valid) or not
-        if(!tempPosition.isFree()) continue; // skip this iteration if not free
+        if(!tempPairBoolPos.first) continue; // skip this iteration if not free
 
         // step4. calculate distance of the child from this node(parent)
         float tempdist = distTravelled(velChoices[i], tempTimeStep);
 
         // step5. make an object for the child with a unique_ptr
-        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPosition,tempdist,tempTimeStep));
+        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPairBoolPos.second,tempdist,tempTimeStep));
     }
-//    for(int i = 0; i < generated.size(); i++){
-//        cout << *generated[i] << endl;
-//    }
     return generated;
 }
-
-float RobotPose::distToParent()
-{
-    return distance;
-}
-
 
 
 bool RobotPose::is(const RobotPose &_other)
