@@ -26,54 +26,65 @@ pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
 
 void RobotPose::print(const RobotPose &_parent)
 {
-    std::cout << "******** ((())))))) " << std::endl;
-    std::cout << "parent: " << _parent << std::endl;
-    std::cout << "child: " << *this << std::endl;
-    std::cout << "timestep: " << this->timeStep << std::endl;
-    Position tempPosition = _parent;
+//    std::cout << "******** ((())))))) " << std::endl;
+//    std::cout << "parent: " << _parent << std::endl;
+//    std::cout << "child: " << *this << std::endl;
+//    std::cout << "timestep: " << this->timeStep << std::endl;
+//    Position tempPosition = _parent;
+//    pair<float,float> linVel_angVel = robotVelocity(pairVel(this->rightWheelVel, this->leftWheelVel));
+
+    Position tempPosition;
     pair<float,float> linVel_angVel = robotVelocity(pairVel(this->rightWheelVel, this->leftWheelVel));
 
-    for(int smallStep =0; smallStep < this->timeStep; smallStep++){
-        std::cout << "smallStep: " << smallStep << std::endl;
-     // maybe implemet float delT = 0.1;
-        float delT = 0;
-        while(delT < 1){
-            delT = delT + 0.1;
-            tempPosition = getNewStepPosition(tempPosition, linVel_angVel, delT );
-            if(!tempPosition.isFree()) continue;
+    float timeIndex = 0;
+    while(timeIndex < this->timeStep){
+            timeIndex = timeIndex + obstacleCheckInterval;
+            tempPosition = getNewStepPosition(Position(_parent.x, _parent.y, _parent.theta) , linVel_angVel, timeIndex );
+//            if(!tempPosition.isFree()) continue;
             int xTemp = scaleAndFloor(tempPosition.x);// floor(x/scaleFactor);
             int yTemp = scaleAndFloor(tempPosition.y);// floor(y/scaleFactor);
             Point::maze.passThrough(xTemp,yTemp);
 
-            std::cout << "********" << std::endl;
-             std::cout << "delT: " << delT << std::endl;
-            std::cout <<"tempPosition"  << tempPosition << std::endl;
+//            std::cout << "********" << std::endl;
+//             std::cout << "delT: " << delT << std::endl;
+//            std::cout <<"tempPosition"  << tempPosition << std::endl;
         }
     }
-
 }
 
 
 pair<bool,Position> RobotPose::validPathPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _timeStep ){
-    Position tempPosition = _startPosition;
-    for(int smallStep =0; smallStep < _timeStep; smallStep++){
-     // maybe implemet float delT = 0.1;
-        float delT = 1;
-        tempPosition = getNewStepPosition(tempPosition, _linVel_angVel, delT );
+
+    Position tempPosition;
+    float timeIndex = 0;
+        while(timeIndex < _timeStep){
+            timeIndex = timeIndex + obstacleCheckInterval;
+            tempPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
         if(!tempPosition.isFree()) return make_pair(false,tempPosition);
     }
     return make_pair(true,tempPosition);
 }
 
-Position RobotPose::getNewStepPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _delTime ){
+Position RobotPose::getNewStepPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _time ){
     // don't know what is the correct approx theta -> discuss
 
     // pair.first = linear velocity
-    float thetaPos = _startPosition.theta + _linVel_angVel.second*_delTime;
+    float v = _linVel_angVel.first;
+    float w = _linVel_angVel.second;
+
+    float thetaPos = _startPosition.theta + w*_time;
 
     // probably this theta calcilation is not correvt
-    float xPos = _startPosition.x+ _linVel_angVel.first*_delTime*cos(_startPosition.theta );// * M_PI/180);
-    float yPos = _startPosition.y+ _linVel_angVel.first*_delTime*sin(_startPosition.theta ); //* M_PI/180);
+    float xPos ;
+    float yPos ;
+    if(w != 0){
+        xPos = _startPosition.x+ (v*cos( w*_time))/w;
+        yPos = _startPosition.y+ (v*sin( w*_time))/w;
+    }
+    else{
+        xPos = _startPosition.x+ v*cos(thetaPos)*_time;
+        yPos = _startPosition.y+ v*sin(thetaPos)*_time;
+    }
 
     // pair.second = angular velocity
     return Position(xPos, yPos, thetaPos);
@@ -88,24 +99,25 @@ float RobotPose::distTravelled(pairVel _wheelVelocityPair, float _timeStep){
 }
 
 float RobotPose::calcTimeStep(float _hDistance){
-    float noOfWheelRevolution = _hDistance/M_PI;
-    if(noOfWheelRevolution >= 12){
-        return bigTimeStep;
-    }
-    else if (noOfWheelRevolution < 12 && noOfWheelRevolution >= 8){
-        return ((3*bigTimeStep)/4);
-    }
-    else if (noOfWheelRevolution < 8 && noOfWheelRevolution >= 4 ){
-        return ((2*bigTimeStep)/4);
-    }
-    else {
-        return ((1*bigTimeStep)/4);
-    }
+//    float noOfWheelRevolution = _hDistance/M_PI;
+//    if(noOfWheelRevolution >= 12){
+//        return bigTimeStep;
+//    }
+//    else if (noOfWheelRevolution < 12 && noOfWheelRevolution >= 8){
+//        return ((3*bigTimeStep)/4);
+//    }
+//    else if (noOfWheelRevolution < 8 && noOfWheelRevolution >= 4 ){
+//        return ((2*bigTimeStep)/4);
+//    }
+//    else {
+//        return ((1*bigTimeStep)/4);
+//    }
+    return 0.5;
 }
 
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     // creates 2 different vector containing the possible choices that the two wheels can have.
-    int scale = -1*velocityIncrementLimit;
+    float scale = -1.0*velocityIncrementLimit;
     vector<float> rightWheelVel_choice;
     vector<float> leftWheelVel_choice;
     float temp_rightWheelVel;
@@ -195,16 +207,25 @@ bool RobotPose::is(const RobotPose &_other)
 
 float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 {
-    float thetaDispTemp = _goal.theta - theta;
-    float thetaDisp = min(abs(thetaDispTemp),360 - abs(thetaDispTemp));
-    float wheelSpinTheta = thetaDisp*tGauge/(2*rWheel);
+//    float thetaDispTemp = _goal.theta - theta;
+//    float thetaDisp = min(abs(thetaDispTemp), float(2*M_PI - abs(thetaDispTemp)));
+//    float wheelSpinTheta = thetaDisp*tGauge/(2*rWheel);
 
-    float x_dist = (x - _goal.x);
-    float y_dist = (y - _goal.y);
+//    float x_dist = (x - _goal.x);
+//    float y_dist = (y - _goal.y);
 
-    float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/rWheel;
+//    float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/rWheel;
 
-    return wheelSpinStraight + wheelSpinTheta;
+//    return wheelSpinStraight + wheelSpinTheta;
+
+        float x_dist = (x - _goal.x);
+        float y_dist = (y - _goal.y);
+
+        float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2));
+        return wheelSpinStraight;
+
+
+
 }
 
 

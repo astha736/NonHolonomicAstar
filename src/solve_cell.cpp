@@ -35,12 +35,10 @@ int main( int argc, char **argv )
     RobotPose beginRobotPose(rightVelBegin,leftVelBegin, beginPosition);
     RobotPose endRobotPose(rightVelEnd,leftVelEnd, endPosition);
 
-//    RobotPose::goalPose = endRobotPose;
     endRobotPose.setGoalPose(endRobotPose);
 
     cout << "beginRobotPose: " << beginRobotPose << std::endl;
     cout << "endRobotPose: " << endRobotPose << std::endl;
-
 
     // call A* algorithm
     if(!beginRobotPose.isFree()){

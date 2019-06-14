@@ -31,6 +31,7 @@ public:
     float leftWheelVel;     // left wheel velocity
     float distance = 0;         // distance of this node from its parent
     float timeStep = 1; // the variable timestep (default value = 1s)
+    float obstacleCheckInterval = 0.1; // del-time step to prevent leaping over obstacles and printing
 
     static RobotPose goalPose;
 
@@ -38,12 +39,12 @@ public:
     static constexpr float tGauge = 1; // track gauge
     // static constexpr float timeStep = 1; // default time step
 
-    static constexpr float wheelVelocityMax = 10; // max angular velocity for any wheel
-    static constexpr float wheelVelocityMin = -10; // min angular velocity for any wheel
+    static constexpr float wheelVelocityMax = 5; // max angular velocity for any wheel
+    static constexpr float wheelVelocityMin = -5; // min angular velocity for any wheel
     static constexpr float wheelVelocityTolerance = 1; // angular velocity tolerance to be used in comparison
 
-    static constexpr float velocityIncrementLimit = 5; // limit of +-rightWheelVel and leftWheelVel from current state
-    static constexpr float velocityIncrementStep = 1;
+    static constexpr float velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
+    static constexpr float velocityIncrementStep = 0.05;
 
     static constexpr float bigTimeStep = 4; // largest time step
 

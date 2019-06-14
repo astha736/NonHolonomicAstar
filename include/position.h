@@ -23,7 +23,7 @@ namespace ecn
         // tolerances along x,y and theta to be ignored whiel some comparison
         static constexpr float xTolerance = 1; //cm
         static constexpr float yTolerance = 1;
-        static constexpr float thetaTolerance = 15; // degree
+        static constexpr float thetaTolerance = M_PI/36; // degree
 
         // for future use
         static constexpr float scaleFactor = 1; // assumption( 1 pixel = scaleFactor x 1 cm : minimum step of the robot)
@@ -34,6 +34,12 @@ namespace ecn
         float x;
         float y;
         float theta;
+
+        Position(){
+            x = 0;
+            y = 0;
+            theta = 0;
+        }
 
         // constructor from coordinates
         Position(float _x, float _y, float _theta){
