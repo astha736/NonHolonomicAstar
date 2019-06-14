@@ -112,10 +112,10 @@ public:
     float calcTimeStep(float _hDistance);
 
     // calculate newPosition and its validity from start, velovities and timestep
-    pair<bool,Position> validPathPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _timeStep );
+    bool validPathPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _timeStep );
 
     // implementing dicrete integration
-    Position getNewStepPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _delTime );
+    Position getNewStepPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _delTime );
 
     // prints all the maze cell visited in between this node and its parents
     void print(const RobotPose &_parent);

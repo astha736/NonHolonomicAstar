@@ -1,6 +1,6 @@
 #include <robotPose.h>
 #include <point.h>
-#include <position.h>
+//#include <position.h>
 
 namespace ecn
 {
@@ -39,7 +39,7 @@ void RobotPose::print(const RobotPose &_parent)
     float timeIndex = 0;
     while(timeIndex < this->timeStep){
             timeIndex = timeIndex + obstacleCheckInterval;
-            tempPosition = getNewStepPosition(Position(_parent.x, _parent.y, _parent.theta) , linVel_angVel, timeIndex );
+            tempPosition = getNewStepPosition(*this , linVel_angVel, timeIndex );
 //            if(!tempPosition.isFree()) continue;
             int xTemp = scaleAndFloor(tempPosition.x);// floor(x/scaleFactor);
             int yTemp = scaleAndFloor(tempPosition.y);// floor(y/scaleFactor);
@@ -49,23 +49,23 @@ void RobotPose::print(const RobotPose &_parent)
 //             std::cout << "delT: " << delT << std::endl;
 //            std::cout <<"tempPosition"  << tempPosition << std::endl;
         }
-    }
 }
 
 
-pair<bool,Position> RobotPose::validPathPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _timeStep ){
+
+bool RobotPose::validPathPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _timeStep ){
 
     Position tempPosition;
     float timeIndex = 0;
         while(timeIndex < _timeStep){
             timeIndex = timeIndex + obstacleCheckInterval;
             tempPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
-        if(!tempPosition.isFree()) return make_pair(false,tempPosition);
+        if(!tempPosition.isFree()) return false;
     }
-    return make_pair(true,tempPosition);
+    return true;
 }
 
-Position RobotPose::getNewStepPosition(Position _startPosition, pair<float,float> _linVel_angVel, float _time ){
+Position RobotPose::getNewStepPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _time ){
     // don't know what is the correct approx theta -> discuss
 
     // pair.first = linear velocity
@@ -170,16 +170,17 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         float tempTimeStep = calcTimeStep(heuristicDistance);
 
         // step2. calculate the (x,y,theta) of the possible child node
-         std::pair<bool,Position> tempPairBoolPos = validPathPosition(*this,tempVelWheel, tempTimeStep);
+//         Position parentPosition = *this;
+         Position tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
         
-        // step3. check if the child node is free(valid) or not
-        if(!tempPairBoolPos.first) continue; // skip this iteration if not free
+         //step3. check if the child node is free(valid) or not
+        if(!validPathPosition(*this,tempVelWheel, tempTimeStep)) continue; // skip this iteration if not free
 
         // step4. calculate distance of the child from this node(parent)
         float tempdist = distTravelled(velChoices[i], tempTimeStep);
 
         // step5. make an object for the child with a unique_ptr
-        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempPairBoolPos.second,tempdist,tempTimeStep));
+        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempChildPosition,tempdist,tempTimeStep));
     }
     return generated;
 }
