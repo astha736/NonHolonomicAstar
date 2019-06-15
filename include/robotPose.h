@@ -30,7 +30,7 @@ public:
     float rightWheelVel;    // right wheel velocity
     float leftWheelVel;     // left wheel velocity
     float distance = 0;         // distance of this node from its parent
-    float timeStep = 1; // the variable timestep (default value = 1s)
+    float timeStep = 0; // the variable timestep (default value = 0s)
     float obstacleCheckInterval = 0.1; // del-time step to prevent leaping over obstacles and printing
 
     static RobotPose goalPose;
@@ -39,14 +39,14 @@ public:
     static constexpr float tGauge = 1; // track gauge
     // static constexpr float timeStep = 1; // default time step
 
+    // wheel velocity terms (rad/sec)
     static constexpr float wheelVelocityMax = 5; // max angular velocity for any wheel
     static constexpr float wheelVelocityMin = -5; // min angular velocity for any wheel
-    static constexpr float wheelVelocityTolerance = 1; // angular velocity tolerance to be used in comparison
-
+    static constexpr float wheelVelocityTolerance = 0.5; // angular velocity tolerance to be used in comparison
     static constexpr float velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
-    static constexpr float velocityIncrementStep = 0.05;
+    static constexpr float velocityIncrementStep = 0.5;
 
-    static constexpr float bigTimeStep = 4; // largest time step
+    static constexpr float bigTimeStep = 2; // largest time step
 
     // construtor
     RobotPose(float _rightWheelVel, float _leftWheelVel, Position _p) : Position(_p.x,_p.y,_p.theta) {
@@ -77,13 +77,6 @@ public:
         leftWheelVel = _p.leftWheelVel;
     }
 
-    // Generate a set of choices of wheel velocity
-    vector<pairVel>  generateVelChoices();
-
-    // Converting wheel velocites to linear and angular velocities stored in robotVelocity
-    // for a (2,0) robot <linear, angular>
-    static pair<float,float> robotVelocity(pairVel _vel_wheel);
-
     // Suggest how the object of such data type should be printed
     friend std::ostream& operator<<(std::ostream& _out, const RobotPose& _p)
     {
@@ -98,6 +91,13 @@ public:
     float distToParent();
     // vector of unique_ptr to children
     std::vector<RobotPosePtr> children();
+
+
+    // Generate a set of choices of wheel velocity
+    vector<pairVel>  generateVelChoices();
+
+    // Converting wheel velocites to linear and angular velocities stored in robotVelocity for a (2,0) robot <linear, angular>
+    static pair<float,float> robotVelocity(pairVel _vel_wheel);
 
     // calculates the distance traveled by robot travelling at wheel velocity pair
     // will be used to calculate the distance attribute of the children

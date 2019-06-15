@@ -15,7 +15,7 @@ using namespace ecn;
 int main( int argc, char **argv )
 {
     float x_begin = 0, y_begin = 0, thetaBegin = 0;
-    float x_end = 5,  y_end = 5,  thetaEnd = 0 ;
+    float x_end = 35,  y_end = 25,  thetaEnd = M_PI/2 ;
 
     float rightVelBegin = 0, rightVelEnd = 0;
     float leftVelBegin = 0, leftVelEnd = 0;
@@ -55,7 +55,7 @@ int main( int argc, char **argv )
     ecn::Astar(beginRobotPose, endRobotPose);
 
     // save final image
-    Point::maze.saveSolution("result_5_5_0_small_step_print_issue");
+    Point::maze.saveSolution("result_35_25_PIby2_variableTimestep");
     cv::waitKey(0);
 
 }
