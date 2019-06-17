@@ -31,13 +31,12 @@ public:
     float leftWheelVel;     // left wheel velocity
     float distance = 0;         // distance of this node from its parent
     float timeStep = 0; // the variable timestep (default value = 0s)
-    float obstacleCheckInterval = 0.1; // del-time step to prevent leaping over obstacles and printing
+    float obstacleCheckInterval = 0.2; // del-time step to prevent leaping over obstacles and printing
 
     static RobotPose goalPose;
 
     static constexpr float rWheel = 1; // wheel radius
     static constexpr float tGauge = 1; // track gauge
-    // static constexpr float timeStep = 1; // default time step
 
     // wheel velocity terms (rad/sec)
     static constexpr float wheelVelocityMax = 5; // max angular velocity for any wheel
@@ -46,7 +45,19 @@ public:
     static constexpr float velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
     static constexpr float velocityIncrementStep = 0.5;
 
+    // time related elements
     static constexpr float bigTimeStep = 2; // largest time step
+    static constexpr int intervalCount = 4; // number of smaller intervals into which big time step is broken
+    static std::vector<float> intervalVector; // vector containing these smaller intervals
+
+    // heuristic related elements
+    static constexpr float force = 1;
+    static constexpr float moment = 1;
+    static constexpr float mass = 1;
+    static constexpr float inertia = 1;
+
+
+    static float KEFinal;
 
     // construtor
     RobotPose(float _rightWheelVel, float _leftWheelVel, Position _p) : Position(_p.x,_p.y,_p.theta) {
@@ -92,7 +103,6 @@ public:
     // vector of unique_ptr to children
     std::vector<RobotPosePtr> children();
 
-
     // Generate a set of choices of wheel velocity
     vector<pairVel>  generateVelChoices();
 
@@ -101,15 +111,16 @@ public:
 
     // calculates the distance traveled by robot travelling at wheel velocity pair
     // will be used to calculate the distance attribute of the children
-    float distTravelled(pairVel _wheelVelocityPair, float _timeStep);
+    float distTravelled(pairVel _parentVelocityPair, pairVel _wheelVelocityPair, float _timeStep);
 
     //heuristic
     float h(const RobotPose &_goal, bool useManhattan);
 
     void setGoalPose(RobotPose _goalPose);
+    void fillIntervalVector();
 
     // calculate the time step on basis of the heuristic distance
-    float calcTimeStep(float _hDistance);
+    pair<float,float> calcTimeStep(float _hDistance);
 
     // calculate newPosition and its validity from start, velovities and timestep
     bool validPathPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _timeStep );

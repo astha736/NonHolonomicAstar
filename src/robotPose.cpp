@@ -2,11 +2,14 @@
 #include <point.h>
 //#include <position.h>
 
+using namespace std;
+
 namespace ecn
 {
 
 RobotPose RobotPose::goalPose(0,0,0,0,0);
-
+float RobotPose::KEFinal;
+vector<float> RobotPose::intervalVector;
 float RobotPose::distToParent()
 {
     return distance;
@@ -14,15 +17,23 @@ float RobotPose::distToParent()
 
 void RobotPose::setGoalPose(RobotPose _goalPose){
      goalPose = _goalPose;
+     pair<float,float> linVel_angVel = robotVelocity(pairVel(goalPose.rightWheelVel, goalPose.leftWheelVel));
+     float v = linVel_angVel.first;
+     float w = linVel_angVel.second;
+     KEFinal = (0.5)*mass*pow(v,2) + (0.5)*inertia*pow(w,2);
+
+     goalPose.fillIntervalVector();
 }
+
+
 
 pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
     pair<float,float> returnVel;
     returnVel.first = ((rWheel*_vel_wheel.right + rWheel*_vel_wheel.left)/2); //*(M_PI/180);
-    returnVel.second = (rWheel*_vel_wheel.right - rWheel*_vel_wheel.left)/(2*tGauge);
+    ///////
+    returnVel.second = (rWheel*_vel_wheel.right - rWheel*_vel_wheel.left)/(tGauge);
     return returnVel;
 }
-
 
 void RobotPose::print(const RobotPose &_parent)
 {
@@ -54,8 +65,6 @@ void RobotPose::print(const RobotPose &_parent)
 //    Point::maze.passThrough(xTemp,yTemp);
 
 }
-
-
 
 bool RobotPose::validPathPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _timeStep ){
 
@@ -96,29 +105,67 @@ Position RobotPose::getNewStepPosition(const RobotPose &_startPosition, pair<flo
 
 }
 
-float RobotPose::distTravelled(pairVel _wheelVelocityPair, float _timeStep){
+float RobotPose::distTravelled(pairVel _parentVelocityPair, pairVel _wheelVelocityPair, float _timeStep){
+    // Distance travelled when using the wheelspin heuristic
     // returns the distance travelled by the robot
     // distance taken as the average of wheel rotations during motion from parent to child
     // in 1 time-step
-    return (abs((_wheelVelocityPair.left)*_timeStep) + abs((_wheelVelocityPair.right)*_timeStep))/2;
+//    return (abs((_wheelVelocityPair.left)*_timeStep) + abs((_wheelVelocityPair.right)*_timeStep))/2;
+
+    ////////////////////////////////////////////////////////////////////////
+    // Distance travelled when using the energy heuristic
+    pair<float,float> linVel_angVel = robotVelocity(_wheelVelocityPair);
+    pair<float,float> parent_linVel_angVel = robotVelocity(_parentVelocityPair);
+
+    float linDistance = (linVel_angVel.first)*_timeStep;
+    float thetaDisp = (linVel_angVel.second)*_timeStep;
+    float workDoneForce = force*linDistance;
+    float workDoneMoment = moment*thetaDisp;
+
+    float KECurrent = (0.5)*mass*pow(linVel_angVel.first,2) + (0.5)*inertia*pow(linVel_angVel.second,2);
+    float KEParent = (0.5)*mass*pow(parent_linVel_angVel.first,2) + (0.5)*inertia*pow(parent_linVel_angVel.second,2);
+
+    float delKE = abs(KECurrent-KEParent);
+    return delKE + workDoneForce + workDoneMoment;
 }
 
-float RobotPose::calcTimeStep(float _hDistance){
+void RobotPose::fillIntervalVector(){
+    int i = intervalCount;
+    float smallestStep = bigTimeStep/intervalCount;
+    while(i >= 0){
+        intervalVector.push_back(float(i)*smallestStep);
+        i = i - 1;
+    }
+}
+
+pair<float,float> RobotPose::calcTimeStep(float _hDistance){
     float noOfWheelRevolution = _hDistance/M_PI;
 //    std::cout << "noOfWheelRevolution: " << noOfWheelRevolution << std::endl;
+    pair<float,float> result;
     if(noOfWheelRevolution >= 12){
-        return bigTimeStep;
+        result.first = 0;
+        result.second = intervalVector[0];
+        return result;
+//        return bigTimeStep;
     }
     else if (noOfWheelRevolution < 12 && noOfWheelRevolution >= 8){
-        return ((3*bigTimeStep)/4);
+        result.first = 1;
+        result.second = intervalVector[1];
+        return result;
+//        return ((3*bigTimeStep)/4);
     }
     else if (noOfWheelRevolution < 8 && noOfWheelRevolution >= 4 ){
-        return ((2*bigTimeStep)/4);
+        result.first = 2;
+        result.second = intervalVector[2];
+        return result;
+//        return ((2*bigTimeStep)/4);
     }
     else {
-        return ((1*bigTimeStep)/4);
+        result.first = 3;
+        result.second = intervalVector[3];
+        return result;
+//        return ((1*bigTimeStep)/4);
     }
-    //return 0.5;
 }
 
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
@@ -173,18 +220,35 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         float heuristicDistance = this->h(goalPose,true);
 
         // step1.3 calculate the time step based on the heuristic
-        float tempTimeStep = calcTimeStep(heuristicDistance);
+        float tempTimeStep = calcTimeStep(heuristicDistance).second;
+        float tempTimeIndex = calcTimeStep(heuristicDistance).first;
 
         // step2. calculate the (x,y,theta) of the possible child node
          Position tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
         
          //step3. check if the child node is free(valid) or not
-        if(!validPathPosition(*this,tempVelWheel, tempTimeStep)) continue; // skip this iteration if not free
+         if(!validPathPosition(*this,tempVelWheel, tempTimeStep)){ // check with smaller timestep if not free
+//             while(tempTimeIndex < (intervalCount - 1) && !validPathPosition(*this,tempVelWheel, tempTimeStep)){
+//                tempTimeIndex = tempTimeIndex + 1;
+//                tempTimeStep = intervalVector[tempTimeIndex];
+//             }
+//             if(!validPathPosition(*this,tempVelWheel, tempTimeStep)){
+//                 continue;
+//             }
+//             else{
+//                 tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
+//             }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+             continue;
+         }
 
         // step4. calculate distance of the child from this node(parent)
-        float tempdist = distTravelled(velChoices[i], tempTimeStep);
+        float tempdist = distTravelled(pairVel(this->rightWheelVel, this->leftWheelVel), velChoices[i], tempTimeStep);
 
         // step5. make an object for the child with a unique_ptr
+        //////
         generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempChildPosition,tempdist,tempTimeStep));
     }
     return generated;
@@ -213,18 +277,21 @@ bool RobotPose::is(const RobotPose &_other)
 
 float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 {
-    float thetaDispTemp = _goal.theta - theta;
-    float thetaDisp = min(abs(thetaDispTemp), float(2*M_PI - abs(thetaDispTemp)));
-    float wheelSpinTheta = thetaDisp*tGauge/(2*rWheel);
+    // Wheel spin heuristic
+//    float thetaDispTemp = _goal.theta - theta;
+//    float thetaDisp = min(abs(thetaDispTemp), float(2*M_PI - abs(thetaDispTemp)));
+//    float wheelSpinTheta = thetaDisp*tGauge/(2*rWheel);
 
-    float x_dist = (x - _goal.x);
-    float y_dist = (y - _goal.y);
+//    float x_dist = (x - _goal.x);
+//    float y_dist = (y - _goal.y);
 
-    float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/rWheel;
+//    float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/rWheel;
 
-    return wheelSpinStraight + wheelSpinTheta;
+//    return wheelSpinStraight + wheelSpinTheta;
+
 
 //////////////////////////////////////////////////////////////////////
+    // Euclidean distance
 
 //        float x_dist = (x - _goal.x);
 //        float y_dist = (y - _goal.y);
@@ -232,7 +299,27 @@ float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 //        float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2));
 //        return wheelSpinStraight;
 
+//////////////////////////////////////////////////////////////////////
+    // Energy based heuristic
+    float thetaDispTemp = _goal.theta - theta;
+    float thetaDisp = min(abs(thetaDispTemp), float(2*M_PI - abs(thetaDispTemp)));
+
+    float x_dist = (x - _goal.x);
+    float y_dist = (y - _goal.y);
+
+    float linDistance = sqrt(pow(x_dist,2) + pow(y_dist,2));
+
+    float workDoneForce = force*linDistance;
+    float workDoneMoment = moment*thetaDisp;
+
+    pair<float,float> linVel_angVel = robotVelocity(pairVel(this->rightWheelVel, this->leftWheelVel));
+    float KECurrent = (0.5)*mass*pow(linVel_angVel.first,2) + (0.5)*inertia*pow(linVel_angVel.second,2);
+    float delKE = abs(KEFinal - KECurrent);
+
+    return delKE + workDoneForce + workDoneMoment;
 }
+
+
 
 
 } // END of namespace
