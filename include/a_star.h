@@ -169,6 +169,9 @@ void Astar(T start, T goal)
     while(!queue.empty())
     {
         auto best = queue.top();
+//        std::cout << "best: " << *best.elem << std::endl;
+//        std::cout << best.f << std::endl;
+//        std::cout << best.g << std::endl;
 
         if(best.elem->is(goal))
         {

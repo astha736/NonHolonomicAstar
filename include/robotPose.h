@@ -52,7 +52,7 @@ public:
 
     // heuristic related elements
     static constexpr float force = 1;
-    static constexpr float moment = 1;
+    static constexpr float moment = 2;
     static constexpr float mass = 1;
     static constexpr float inertia = 1;
 

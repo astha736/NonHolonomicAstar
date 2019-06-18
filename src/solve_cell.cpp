@@ -14,19 +14,22 @@ using namespace ecn;
 
 int main( int argc, char **argv )
 {
-    float x_begin = 0, y_begin = 0, thetaBegin = 0;
-    float x_end = 35,  y_end = 5,  thetaEnd = M_PI/2 ;
+
+    float x_begin = 1, y_begin = 1, thetaBegin = 0;
+    float x_end = 6,  y_end = 1,  thetaEnd = M_PI/2 ;
 
     float rightVelBegin = 0, rightVelEnd = 0;
     float leftVelBegin = 0, leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze_basic_2.png";
+    std::string filename = "maze.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
     // let Point know about this maze
     Point::maze.load(filename);
+//    cout<<Point::begin().x<<endl;
+//    cout<<Point::end().x<<endl;
 
 
     Position beginPosition(x_begin, y_begin, thetaBegin);
@@ -56,7 +59,7 @@ int main( int argc, char **argv )
     ecn::Astar(beginRobotPose, endRobotPose);
 
     // save final image
-    Point::maze.saveSolution("result_35_25_PIby2_variableTimestep");
+    Point::maze.saveSolution("maze_res_5_0_PIby2_variableTimestep");
     cv::waitKey(0);
 
 }

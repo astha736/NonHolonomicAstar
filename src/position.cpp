@@ -33,6 +33,7 @@ bool Position::isFree(){
     // This isFree is currently used by the RobotPose class as well
     int xTemp = scaleAndFloor(x);// floor(x/scaleFactor);
     int yTemp = scaleAndFloor(y);// floor(y/scaleFactor);
+//    cout<<xTemp<<","<<yTemp<<endl;
     if(Point::maze.isFree(xTemp,yTemp)){
         return true;
     }

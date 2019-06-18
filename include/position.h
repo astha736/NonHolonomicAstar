@@ -5,6 +5,7 @@
 #include <iostream>
 #include <math.h>
 #include <point.h>
+#include <cmath>
 
 
 #include <vector>
@@ -45,14 +46,14 @@ namespace ecn
         Position(float _x, float _y, float _theta){
             x = _x;
             y = _y;
-            theta = _theta;
+            theta = thetaBound(_theta);
         }
 
         // constructor from base ecn::Point
         Position(Point _p, float _theta){
             x = _p.x;
             y = _p.y;
-            theta = _theta;
+            theta = thetaBound(_theta);
         }
 
 
@@ -82,6 +83,14 @@ namespace ecn
         void start(); // Used inside the maze.h code
         void show(bool _closed, const Position &_parent);
         int scaleAndFloor(float _float);
+        static float thetaBound(float _theta){
+            if(_theta >= 0){
+                return remainder(_theta,(2.0*M_PI));
+            }
+            else{
+                return ((2.0*M_PI) - remainder(abs(_theta),(2.0*M_PI)));
+            }
+        }
 
     };
 }

@@ -2,3 +2,11 @@
 *log/
 *.pdf
 *.user
+CMakeCache.txt
+CMakeFiles/
+Makefile
+NonHolonmicAstar.cbp
+cmake_install.cmake
+CMakeLists.txt.user.4.8-pre1
+
+
