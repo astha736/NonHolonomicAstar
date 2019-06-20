@@ -40,17 +40,6 @@ public:
     static std::vector<float> intervalVector; // vector containing these smaller intervals
 
     // heuristic related elements
-// <<<<<<< HEAD
-//     static constexpr float force = 1;
-//     static constexpr float moment = 2;
-//     static constexpr float mass = 1;
-//     static constexpr float inertia = 1;
-
-//     static constexpr float straightSpinWeight = 1;
-//     static constexpr float thetaSpinWeight = 1;
-
-// =======
-// >>>>>>> origin/master
     static float KEFinal;
 
     // construtor

@@ -78,10 +78,16 @@ bool RobotPose::validPathPosition(const RobotPose &_startPosition, Position _tem
 
     //NOTE: _time represents the time elapsed from start pos
     float timeIndex = 0;
-// <<<<<<< HEAD
     // returns false if either the possible child position is blocked OR if the path to that child is blocked
     if(!_tempChildPosition.isFree()){
         return false;
+    }
+    else{
+        while(timeIndex < _timeStep){
+            timeIndex = timeIndex + obstacleCheckInterval;
+            _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
+            if(!_tempChildPosition.isFree()) return false;
+        }
     }
     else{
         while(timeIndex < _timeStep){
@@ -89,13 +95,6 @@ bool RobotPose::validPathPosition(const RobotPose &_startPosition, Position _tem
             _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
             if(!_tempChildPosition.isFree()) return false;
         }
-// =======
-//     while(timeIndex < _timeStep){
-//         timeIndex = timeIndex + Param::obstacleCheckInterval;
-//         tempPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
-//         if(!tempPosition.isFree()) return false;
-// >>>>>>> origin/master
-//     }
     return true;
 }
 }
@@ -256,9 +255,8 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
          Position tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
         
          //step3. check if the child node is free(valid) or not
-
          if(!validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){ // check with smaller timestep if not free
-             while(tempTimeIndex < (Param::intervalCount - 1) && !validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){
+             while(tempTimeIndex < (intervalCount - 1) && !validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){
                 tempTimeIndex = tempTimeIndex + 1;
                 tempTimeStep = intervalVector[tempTimeIndex];
              }
@@ -317,7 +315,7 @@ float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 
     float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/Param::rWheel;
 
-    return Param::straightSpinWeight*wheelSpinStraight + Param::thetaSpinWeight*wheelSpinTheta;
+    return straightSpinWeight*wheelSpinStraight + thetaSpinWeight*wheelSpinTheta;
 
 
 

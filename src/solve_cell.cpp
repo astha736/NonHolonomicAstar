@@ -58,8 +58,6 @@ int main( int argc, char **argv )
         return 0;
     }
 
-    cout<<"hello"<endl;
-
     //    cout << Point::maze.isFree(x_end,y_end) << std::endl;
 
     ecn::Astar(beginRobotPose, endRobotPose);
