@@ -34,12 +34,15 @@ int main( int argc, char **argv )
 
     Position beginPosition(x_begin, y_begin, thetaBegin);
     Position endPosition(x_end, y_end, thetaEnd);
+    Position endPositionMaze(Point::end().x,Point::end().y,M_PI/2);
 
     RobotPose beginRobotPose(rightVelBegin,leftVelBegin, beginPosition);
     RobotPose endRobotPose(rightVelEnd,leftVelEnd, endPosition);
+    RobotPose endRobotPoseMaze(rightVelEnd,leftVelEnd, endPositionMaze);
 
-    endRobotPose.setGoalPose(endRobotPose);
-//    endRobotPose.fillIntervalVector();
+
+//    endRobotPose.setGoalPose(endRobotPose);
+    endRobotPoseMaze.setGoalPose(endRobotPoseMaze);
 
     cout << "beginRobotPose: " << beginRobotPose << std::endl;
     cout << "endRobotPose: " << endRobotPose << std::endl;
@@ -57,9 +60,10 @@ int main( int argc, char **argv )
     //    cout << Point::maze.isFree(x_end,y_end) << std::endl;
 
     ecn::Astar(beginRobotPose, endRobotPose);
+//    ecn::Astar(beginRobotPose, endRobotPoseMaze);
 
     // save final image
-    Point::maze.saveSolution("maze_res_5_0_PIby2_variableTimestep");
+    Point::maze.saveSolution("maze_res_end_PIby2_variableTimestep");
     cv::waitKey(0);
 
 }
