@@ -66,15 +66,25 @@ void RobotPose::print(const RobotPose &_parent)
 
 }
 
-bool RobotPose::validPathPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _timeStep ){
+bool isChildHealthy(const RobotPose &_parent, Position _tempChildPosition){
+
+}
+
+
+bool RobotPose::validPathPosition(const RobotPose &_startPosition, Position _tempChildPosition, pair<float,float> _linVel_angVel, float _timeStep ){
 
     //NOTE: _time represents the time elapsed from start pos
-    Position tempPosition;
     float timeIndex = 0;
-    while(timeIndex < _timeStep){
-        timeIndex = timeIndex + obstacleCheckInterval;
-        tempPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
-        if(!tempPosition.isFree()) return false;
+    // returns false if either the possible child position is blocked OR if the path to that child is blocked
+    if(!_tempChildPosition.isFree()){
+        return false;
+    }
+    else{
+        while(timeIndex < _timeStep){
+            timeIndex = timeIndex + obstacleCheckInterval;
+            _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
+            if(!_tempChildPosition.isFree()) return false;
+        }
     }
     return true;
 }
@@ -235,21 +245,21 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
          Position tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
         
          //step3. check if the child node is free(valid) or not
-         if(!validPathPosition(*this,tempVelWheel, tempTimeStep)){ // check with smaller timestep if not free
-//             while(tempTimeIndex < (intervalCount - 1) && !validPathPosition(*this,tempVelWheel, tempTimeStep)){
-//                tempTimeIndex = tempTimeIndex + 1;
-//                tempTimeStep = intervalVector[tempTimeIndex];
-//             }
-//             if(!validPathPosition(*this,tempVelWheel, tempTimeStep)){
-//                 continue;
-//             }
-//             else{
-//                 tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
-//             }
+         if(!validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){ // check with smaller timestep if not free
+             while(tempTimeIndex < (intervalCount - 1) && !validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){
+                tempTimeIndex = tempTimeIndex + 1;
+                tempTimeStep = intervalVector[tempTimeIndex];
+             }
+             if(!validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){
+                 continue;
+             }
+             else{
+                 tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
+             }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-             continue;
+//             continue;
          }
 
         // step4. calculate distance of the child from this node(parent)
@@ -295,7 +305,8 @@ float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 
     float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/rWheel;
 
-    return wheelSpinStraight + wheelSpinTheta;
+    return straightSpinWeight*wheelSpinStraight + thetaSpinWeight*wheelSpinTheta;
+
 
 
 //////////////////////////////////////////////////////////////////////

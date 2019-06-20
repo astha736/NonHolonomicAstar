@@ -56,6 +56,8 @@ public:
     static constexpr float mass = 1;
     static constexpr float inertia = 1;
 
+    static constexpr float straightSpinWeight = 1;
+    static constexpr float thetaSpinWeight = 1;
 
     static float KEFinal;
 
@@ -123,13 +125,16 @@ public:
     pair<float,float> calcTimeStep(float _hDistance);
 
     // calculate newPosition and its validity from start, velovities and timestep
-    bool validPathPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _timeStep );
+    bool validPathPosition(const RobotPose &_startPosition, Position _tempChildPosition, pair<float,float> _linVel_angVel, float _timeStep );
 
     // implementing dicrete integration
     Position getNewStepPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _delTime );
 
     // prints all the maze cell visited in between this node and its parents
     void print(const RobotPose &_parent);
+
+    bool isChildHealthy(const RobotPose &_parent, Position _tempChildPosition);
+
 
 };
 }
