@@ -4,6 +4,7 @@
 
 #include <robotPose.h>
 #include <position.h>
+#include<param.h>
 
 using namespace std;
 using namespace ecn;

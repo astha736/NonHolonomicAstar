@@ -12,6 +12,7 @@
 #include <memory>
 
 #include <maze.h>
+#include <param.h>
 
 //using namespace std;
 
@@ -21,16 +22,18 @@ namespace ecn
     {
 
     protected:
-        // tolerances along x,y and theta to be ignored whiel some comparison
-        static constexpr float xTolerance = 1; //cm
-        static constexpr float yTolerance = 1;
-        static constexpr float thetaTolerance = M_PI/36; // degree
+//        // tolerances along x,y and theta to be ignored whiel some comparison
+//        static constexpr float xTolerance = 1; //cm
+//        static constexpr float yTolerance = 1;
+//        static constexpr float thetaTolerance = M_PI/36; // degree
 
-        // for future use
-        static constexpr float scaleFactor = 1; // assumption( 1 pixel = scaleFactor x 1 cm : minimum step of the robot)
+//        // for future use
+//        static constexpr float scaleFactor = 1; // assumption( 1 pixel = scaleFactor x 1 cm : minimum step of the robot)
 
     public:
         typedef std::unique_ptr<Position> PositionPtr;
+
+        friend class Param;
 
         float x;
         float y;
@@ -96,6 +99,3 @@ namespace ecn
 }
 
 #endif
-
-//        float distFromPosition(const Position &p);
-//        static float convertDegreeToRadian(int _deg);
