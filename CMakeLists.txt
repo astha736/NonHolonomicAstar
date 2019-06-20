@@ -16,9 +16,11 @@ add_library(NonHolonmicAstar SHARED
     include/point.h 
     include/position.h 
     include/robotPose.h 
+    include/param.h
     src/point.cpp 
     src/position.cpp
-    src/robotPose.cpp)
+    src/robotPose.cpp
+    src/param.cpp)
 
 target_link_libraries(NonHolonmicAstar ${OpenCV_LIBS})
 
