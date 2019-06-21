@@ -10,10 +10,8 @@
 
 #include <vector>
 #include <memory>
-
 #include <maze.h>
 #include <param.h>
-
 //using namespace std;
 
 namespace ecn
@@ -31,9 +29,8 @@ namespace ecn
 //        static constexpr float scaleFactor = 1; // assumption( 1 pixel = scaleFactor x 1 cm : minimum step of the robot)
 
     public:
-        typedef std::unique_ptr<Position> PositionPtr;
-
         friend class Param;
+        typedef std::unique_ptr<Position> PositionPtr;
 
         float x;
         float y;
@@ -99,3 +96,6 @@ namespace ecn
 }
 
 #endif
+
+//        float distFromPosition(const Position &p);
+//        static float convertDegreeToRadian(int _deg);

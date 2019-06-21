@@ -1,12 +1,12 @@
 #include <robotPose.h>
 #include <point.h>
-#include <param.h>
 //#include <position.h>
 
 using namespace std;
 
 namespace ecn
 {
+
 RobotPose RobotPose::goalPose(0,0,0,0,0);
 float RobotPose::KEFinal;
 vector<float> RobotPose::intervalVector;
@@ -23,15 +23,12 @@ void RobotPose::setGoalPose(RobotPose _goalPose){
      KEFinal = (0.5)*Param::mass*pow(v,2) + (0.5)*Param::inertia*pow(w,2);
 
      goalPose.fillIntervalVector();
-     Param::loadStaticVariables();
 }
 
 
 
 pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
     pair<float,float> returnVel;
-    cout << "Param::rWheel" << Param::rWheel << std::endl;
-    cout << "Param::tGauge" << Param::tGauge << std::endl;
     returnVel.first = ((Param::rWheel*_vel_wheel.right + Param::rWheel*_vel_wheel.left)/2); //*(M_PI/180);
     ///////
     returnVel.second = (Param::rWheel*_vel_wheel.right - Param::rWheel*_vel_wheel.left)/(Param::tGauge);
@@ -78,18 +75,18 @@ bool RobotPose::validPathPosition(const RobotPose &_startPosition, Position _tem
 
     //NOTE: _time represents the time elapsed from start pos
     float timeIndex = 0;
+    // returns false if either the possible child position is blocked OR if the path to that child is blocked
     if(!_tempChildPosition.isFree()){
         return false;
     }
     else{
         while(timeIndex < _timeStep){
-            timeIndex = timeIndex + obstacleCheckInterval;
+            timeIndex = timeIndex + Param::obstacleCheckInterval;
             _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
             if(!_tempChildPosition.isFree()) return false;
         }
     }
     return true;
-}
 }
 
 Position RobotPose::getNewStepPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _time ){
@@ -135,8 +132,8 @@ float RobotPose::distTravelled(pairVel _parentVelocityPair, pairVel _wheelVeloci
 //    float workDoneForce = force*linDistance;
 //    float workDoneMoment = moment*thetaDisp;
 
-////    float KECurrent = (0.5)*Param::mass*pow(linVel_angVel.first,2) + (0.5)*Param::inertia*pow(linVel_angVel.second,2);
-////    float KEParent = (0.5)*Param::mass*pow(parent_linVel_angVel.first,2) + (0.5)*Param::inertia*pow(parent_linVel_angVel.second,2);
+////    float KECurrent = (0.5)*mass*pow(linVel_angVel.first,2) + (0.5)*inertia*pow(linVel_angVel.second,2);
+////    float KEParent = (0.5)*mass*pow(parent_linVel_angVel.first,2) + (0.5)*inertia*pow(parent_linVel_angVel.second,2);
 
 ////    float delKE = abs(KECurrent-KEParent);
 ////    return delKE + workDoneForce + workDoneMoment;
@@ -151,8 +148,8 @@ float RobotPose::distTravelled(pairVel _parentVelocityPair, pairVel _wheelVeloci
 }
 
 void RobotPose::fillIntervalVector(){
-    int i =  Param::intervalCount;
-    float smallestStep =  Param::bigTimeStep/ Param::intervalCount;
+    int i = Param::intervalCount;
+    float smallestStep = Param::bigTimeStep/Param::intervalCount;
     while(i >= 0){
         intervalVector.push_back(float(i)*smallestStep);
         i = i - 1;
@@ -167,48 +164,48 @@ pair<float,float> RobotPose::calcTimeStep(float _hDistance){
         result.first = 0;
         result.second = intervalVector[0];
         return result;
-//        return  Param::bigTimeStep;
+//        return bigTimeStep;
     }
     else if (noOfWheelRevolution < 12 && noOfWheelRevolution >= 8){
         result.first = 1;
         result.second = intervalVector[1];
         return result;
-//        return ((3* Param::bigTimeStep)/4);
+//        return ((3*bigTimeStep)/4);
     }
     else if (noOfWheelRevolution < 8 && noOfWheelRevolution >= 4 ){
         result.first = 2;
         result.second = intervalVector[2];
         return result;
-//        return ((2* Param::bigTimeStep)/4);
+//        return ((2*bigTimeStep)/4);
     }
     else {
         result.first = 3;
         result.second = intervalVector[3];
         return result;
-//        return ((1* Param::bigTimeStep)/4);
+//        return ((1*bigTimeStep)/4);
     }
 }
 
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     // creates 2 different vector containing the possible choices that the two wheels can have.
-    float scale = -1.0* Param::velocityIncrementLimit;
+    float scale = -1.0*Param::velocityIncrementLimit;
     vector<float> rightWheelVel_choice;
     vector<float> leftWheelVel_choice;
     float temp_rightWheelVel;
     float temp_leftWheelVel;
-    while(scale <=  Param::velocityIncrementLimit ){
+    while(scale <= Param::velocityIncrementLimit ){
         temp_rightWheelVel = rightWheelVel+scale;
         temp_leftWheelVel = leftWheelVel+scale;
 
-        if(temp_rightWheelVel >  Param::wheelVelocityMax || temp_rightWheelVel <  Param::wheelVelocityMin); // do nothing
+        if(temp_rightWheelVel > Param::wheelVelocityMax || temp_rightWheelVel < Param::wheelVelocityMin); // do nothing
         else {
             rightWheelVel_choice.push_back(temp_rightWheelVel);
         }
-        if(temp_leftWheelVel >  Param::wheelVelocityMax || temp_leftWheelVel <  Param::wheelVelocityMin); // do nothing
+        if(temp_leftWheelVel > Param::wheelVelocityMax || temp_leftWheelVel < Param::wheelVelocityMin); // do nothing
         else {
             leftWheelVel_choice.push_back(temp_leftWheelVel);
         }
-        scale +=  Param::velocityIncrementStep; // increase the scale by velocity step
+        scale += Param::velocityIncrementStep; // increase the scale by velocity step
     }
 
     // need to create the wheelVelVectorPair which can be directly be used to create valid childrens
@@ -249,7 +246,7 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         
          //step3. check if the child node is free(valid) or not
          if(!validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){ // check with smaller timestep if not free
-             while(tempTimeIndex < (intervalCount - 1) && !validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){
+             while(tempTimeIndex < (Param::intervalCount - 1) && !validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){
                 tempTimeIndex = tempTimeIndex + 1;
                 tempTimeStep = intervalVector[tempTimeIndex];
              }
@@ -283,10 +280,10 @@ bool RobotPose::is(const RobotPose &_other)
     Position* nodePosition = this;
 
     bool clauseA = nodePosition->is(othePosition) ;
-    bool clauseB = ((_other.leftWheelVel -  Param::wheelVelocityTolerance) <= this->leftWheelVel)
-            && (this->leftWheelVel <= (_other.leftWheelVel +  Param::wheelVelocityTolerance)) ;
-    bool clauseC = ((_other.rightWheelVel -  Param::wheelVelocityTolerance) <= this->rightWheelVel)
-            && (this->rightWheelVel <= (_other.rightWheelVel +  Param::wheelVelocityTolerance)) ;
+    bool clauseB = ((_other.leftWheelVel - Param::wheelVelocityTolerance) <= this->leftWheelVel)
+            && (this->leftWheelVel <= (_other.leftWheelVel + Param::wheelVelocityTolerance)) ;
+    bool clauseC = ((_other.rightWheelVel - Param::wheelVelocityTolerance) <= this->rightWheelVel)
+            && (this->rightWheelVel <= (_other.rightWheelVel + Param::wheelVelocityTolerance)) ;
 
     if(clauseA && clauseB && clauseC)
     {
@@ -308,7 +305,7 @@ float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 
     float wheelSpinStraight = sqrt(pow(x_dist,2) + pow(y_dist,2))/Param::rWheel;
 
-    return straightSpinWeight*wheelSpinStraight + thetaSpinWeight*wheelSpinTheta;
+    return Param::straightSpinWeight*wheelSpinStraight + Param::thetaSpinWeight*wheelSpinTheta;
 
 
 
@@ -331,14 +328,14 @@ float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 
 //    float linDistance = sqrt(pow(x_dist,2) + pow(y_dist,2));
 
-//    float workDoneForce =  Param::force*linDistance;
-//    float workDoneMoment =  Param::moment*thetaDisp;
+//    float workDoneForce = force*linDistance;
+//    float workDoneMoment = moment*thetaDisp;
 
 //    pair<float,float> linVel_angVel = robotVelocity(pairVel(this->rightWheelVel, this->leftWheelVel));
 
 
 /////
-////    float KECurrent = (0.5)*Param::mass*pow(linVel_angVel.first,2) + (0.5)*Param::inertia*pow(linVel_angVel.second,2);
+////    float KECurrent = (0.5)*mass*pow(linVel_angVel.first,2) + (0.5)*inertia*pow(linVel_angVel.second,2);
 ////    float delKE = abs(KEFinal - KECurrent);
 
 ////    return delKE + workDoneForce + workDoneMoment;
