@@ -1,5 +1,6 @@
 #include <robotPose.h>
 #include <point.h>
+#include <limits.h>
 //#include <position.h>
 
 using namespace std;
@@ -37,10 +38,10 @@ pair<float,float> RobotPose::robotVelocity(RobotPose::pairVel _vel_wheel){
 
 void RobotPose::print(const RobotPose &_parent)
 {
-    std::cout << "******** ((())))))) " << std::endl;
-    std::cout << "parent: " << _parent << std::endl;
-    std::cout << "child: " << *this << std::endl;
-    std::cout << "timestep: " << this->timeStep << std::endl;
+//    std::cout << "******** ((())))))) " << std::endl;
+//    std::cout << "parent: " << _parent << std::endl;
+//    std::cout << "child: " << *this << std::endl;
+//    std::cout << "timestep: " << this->timeStep << std::endl;
 
     Position tempPosition;
     pair<float,float> linVel_angVel = robotVelocity(pairVel(this->rightWheelVel, this->leftWheelVel));
@@ -53,9 +54,9 @@ void RobotPose::print(const RobotPose &_parent)
             int yTemp = scaleAndFloor(tempPosition.y);// floor(y/scaleFactor);
             Point::maze.passThrough(xTemp,yTemp);
 
-            std::cout << "********" << std::endl;
-             std::cout << "timeIndex: " << timeIndex << std::endl;
-            std::cout <<"tempPosition"  << tempPosition << std::endl;
+//            std::cout << "********" << std::endl;
+//             std::cout << "timeIndex: " << timeIndex << std::endl;
+//            std::cout <<"tempPosition"  << tempPosition << std::endl;
         }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +225,10 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
     // this method should return  all positions reachable from this one
     std::vector<RobotPosePtr> generated;
 
+    std::vector<RobotPose> tempChildGenerated; // vector to store the possible child poses
+    std::vector<float> tempChildHeuristic; // vector to store corresponding heuristic values of the children
+    float bestChildHeuristic = FLT_MAX; // float to store the best possible child
+
     // based on the vector of acceptable velocity generate different children
     vector<pairVel> velChoices;
     velChoices = generateVelChoices();
@@ -265,10 +270,24 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
         // step4. calculate distance of the child from this node(parent)
         float tempdist = distTravelled(pairVel(this->rightWheelVel, this->leftWheelVel), velChoices[i], tempTimeStep);
 
-        // step5. make an object for the child with a unique_ptr
-        //////
-        generated.push_back(std::make_unique <RobotPose>(velChoices[i],tempChildPosition,tempdist,tempTimeStep));
+        // step5. robot pose of the temporary child
+        RobotPose tempChildPose = RobotPose(velChoices[i],tempChildPosition,tempdist,tempTimeStep);
+        float tempChildHValue = tempChildPose.h(goalPose,true); // heuristic value of the child (health assessment)
+        if(bestChildHeuristic > tempChildHValue  ){
+            bestChildHeuristic = tempChildHValue; // updating the best heursitic
+        }
+        tempChildHeuristic.push_back(tempChildHValue);
+        tempChildGenerated.push_back(tempChildPose);
     }
+
+    for(int i =0; i < tempChildGenerated.size(); i++){
+        if(tempChildHeuristic[i] < Param::childHealthLimit*bestChildHeuristic){
+            generated.push_back(std::make_unique <RobotPose>(tempChildGenerated[i]));
+        }
+
+    }
+
+
     return generated;
 }
 

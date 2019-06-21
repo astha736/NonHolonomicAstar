@@ -39,6 +39,8 @@ float Param::inertia = 1;
 float Param::straightSpinWeight = 1;
 float Param::thetaSpinWeight = 1;
 
+float Param::childHealthLimit = 1.05;
+
 // set the required params in a function like this
 // call this in RobotPose::setGoalPose()
 void Param::loadStaticVariables(){

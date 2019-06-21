@@ -47,9 +47,20 @@ public:
     static  float thetaSpinWeight;
     static  float straightSpinWeight;
 
-
+    static float childHealthLimit; // used to reduce the number of child nodes to be explored by removing the badly performing children before exploration
 
     static void loadStaticVariables();
+
+
+
+
+
+
+
+
+
+
+
 
 };
 

@@ -16,13 +16,13 @@ int main( int argc, char **argv )
 {
 
     float x_begin = 1, y_begin = 1, thetaBegin = 0;
-    float x_end = 35,  y_end = 25,  thetaEnd = M_PI/2 ;
+    float x_end = 36,  y_end = 21,  thetaEnd = M_PI/2 ;
 
     float rightVelBegin = 0, rightVelEnd = 0;
     float leftVelBegin = 0, leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze_basic_2.png";
+    std::string filename = "maze.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 //    ecn::Astar(beginRobotPose, endRobotPoseMaze);
 
     // save final image
-     Point::maze.saveSolution("maze_test_variableTimestep");
+     Point::maze.saveSolution("maze_vt_health_36_21_Pby2");
     cv::waitKey(0);
 
 }
