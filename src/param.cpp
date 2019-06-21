@@ -37,7 +37,11 @@ float Param::mass = 1;
 float Param::inertia = 1;
 
 float Param::straightSpinWeight = 1;
+<<<<<<< HEAD
 float Param::thetaSpinWright = 1;
+=======
+float Param::thetaSpinWeight = 1;
+>>>>>>> origin/master
 
 // set the required params in a function like this
 // call this in RobotPose::setGoalPose()

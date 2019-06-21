@@ -17,13 +17,13 @@ int main( int argc, char **argv )
 {
 
     float x_begin = 1, y_begin = 1, thetaBegin = 0;
-    float x_end = 6,  y_end = 1,  thetaEnd = M_PI/2 ;
+    float x_end = 35,  y_end = 25,  thetaEnd = M_PI/2 ;
 
     float rightVelBegin = 0, rightVelEnd = 0;
     float leftVelBegin = 0, leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze.png";
+    std::string filename = "maze_basic_2.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
@@ -42,8 +42,8 @@ int main( int argc, char **argv )
     RobotPose endRobotPoseMaze(rightVelEnd,leftVelEnd, endPositionMaze);
 
 
-//    endRobotPose.setGoalPose(endRobotPose);
-    endRobotPoseMaze.setGoalPose(endRobotPoseMaze);
+   endRobotPose.setGoalPose(endRobotPose);
+    // endRobotPoseMaze.setGoalPose(endRobotPoseMaze);
 
     cout << "beginRobotPose: " << beginRobotPose << std::endl;
     cout << "endRobotPose: " << endRobotPose << std::endl;
@@ -64,7 +64,7 @@ int main( int argc, char **argv )
 //    ecn::Astar(beginRobotPose, endRobotPoseMaze);
 
     // save final image
-    Point::maze.saveSolution("maze_res_end_PIby2_variableTimestep");
+     Point::maze.saveSolution("maze_test_variableTimestep");
     cv::waitKey(0);
 
 }
