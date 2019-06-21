@@ -11,8 +11,9 @@ namespace ecn
 RobotPose RobotPose::goalPose(0,0,0,0,0);
 float RobotPose::KEFinal;
 vector<float> RobotPose::intervalVector;
-float RobotPose::distToParent()
-{
+float RobotPose::goalRadius = Param::wheelVelocityMax*Param::bigTimeStep;
+std::vector<float> RobotPose::radiusRegionLimitVector;
+float RobotPose::distToParent(){
     return distance;
 }
 
@@ -22,8 +23,8 @@ void RobotPose::setGoalPose(RobotPose _goalPose){
      float v = linVel_angVel.first;
      float w = linVel_angVel.second;
      KEFinal = (0.5)*Param::mass*pow(v,2) + (0.5)*Param::inertia*pow(w,2);
-
      goalPose.fillIntervalVector();
+     goalPose.fillRadiusRegionLimitVector();
 }
 
 
@@ -151,40 +152,56 @@ float RobotPose::distTravelled(pairVel _parentVelocityPair, pairVel _wheelVeloci
 void RobotPose::fillIntervalVector(){
     int i = Param::intervalCount;
     float smallestStep = Param::bigTimeStep/Param::intervalCount;
-    while(i >= 0){
+    while(i > 0){
         intervalVector.push_back(float(i)*smallestStep);
         i = i - 1;
     }
 }
 
+////// HERE
 pair<float,float> RobotPose::calcTimeStep(float _hDistance){
     float noOfWheelRevolution = _hDistance/M_PI;
-//    std::cout << "noOfWheelRevolution: " << noOfWheelRevolution << std::endl;
+////    std::cout << "noOfWheelRevolution: " << noOfWheelRevolution << std::endl;
+//    pair<float,float> result;
+//    if(noOfWheelRevolution >= 12){
+//        result.first = 0;
+//        result.second = intervalVector[0];
+//        return result;
+////        return bigTimeStep;
+//    }
+//    else if (noOfWheelRevolution < 12 && noOfWheelRevolution >= 8){
+//        result.first = 1;
+//        result.second = intervalVector[1];
+//        return result;
+////        return ((3*bigTimeStep)/4);
+//    }
+//    else if (noOfWheelRevolution < 8 && noOfWheelRevolution >= 4 ){
+//        result.first = 2;
+//        result.second = intervalVector[2];
+//        return result;
+////        return ((2*bigTimeStep)/4);
+//    }
+//    else {
+//        result.first = 3;
+//        result.second = intervalVector[3];
+//        return result;
+////        return ((1*bigTimeStep)/4);
+//}
+    /////////////////////From Goal Radius Approach /////////////////////////////////////////
+    // returns the timestep corresponding to the heuristic limit
     pair<float,float> result;
-    if(noOfWheelRevolution >= 12){
-        result.first = 0;
-        result.second = intervalVector[0];
-        return result;
-//        return bigTimeStep;
+    int index = 0;
+    while(index < Param::intervalCount){
+        if(noOfWheelRevolution >= radiusRegionLimitVector[index]){
+            result.first = index;
+            result.second = intervalVector[index];
+            return result;
+        }
+        index++;
     }
-    else if (noOfWheelRevolution < 12 && noOfWheelRevolution >= 8){
-        result.first = 1;
-        result.second = intervalVector[1];
-        return result;
-//        return ((3*bigTimeStep)/4);
-    }
-    else if (noOfWheelRevolution < 8 && noOfWheelRevolution >= 4 ){
-        result.first = 2;
-        result.second = intervalVector[2];
-        return result;
-//        return ((2*bigTimeStep)/4);
-    }
-    else {
-        result.first = 3;
-        result.second = intervalVector[3];
-        return result;
-//        return ((1*bigTimeStep)/4);
-    }
+    result.first = Param::intervalCount - 1;
+    result.second = intervalVector[Param::intervalCount - 1];
+    return result;
 }
 
 vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
@@ -219,7 +236,7 @@ vector<RobotPose::pairVel>  RobotPose::generateVelChoices(){
     }
     return ret;
 }
-
+//// TO-DO: check for timestep during child node creation
 std::vector<RobotPose::RobotPosePtr> RobotPose::children()
 {
     // this method should return  all positions reachable from this one
@@ -362,6 +379,18 @@ float RobotPose::h(const RobotPose &_goal, bool useManhattan)
 
 }
 
+void RobotPose::fillRadiusRegionLimitVector(){
+/////////////////////////From Goal Radius Approach /////////////////////////////////////////
+//    float smallestStep = Param::goalRadiusMultiplier*goalRadius;
+//    for(int i = Param::intervalCount - 1; i >= 0; i--) {
+//        radiusRegionLimitVector.push_back(float(i)*smallestStep);
+//    }
+ /////////////////////////////////////////////////////////////////////////
+        float smallestStep = Param::highestThreshold/(Param::intervalCount -1);
+        for(int i = Param::intervalCount - 1; i >= 0; i--) {
+            radiusRegionLimitVector.push_back(float(i)*smallestStep);
+        }
+}
 
 
 

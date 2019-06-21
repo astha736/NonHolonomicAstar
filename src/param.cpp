@@ -22,12 +22,15 @@ float Param::wheelVelocityMin = -5; // min angular velocity for any wheel
 float Param::wheelVelocityTolerance = 0.5; // angular velocity tolerance to be used in comparison
 float Param::velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
 float Param::velocityIncrementStep = 0.5;
-float Param::obstacleCheckInterval = 0.2; // del-time step to prevent leaping over obstacles and printing
 
 
 // time related elements
 float Param::bigTimeStep = 2; // largest time step
 int   Param::intervalCount = 4; // number of smaller intervals into which big time step is broken
+float Param::obstacleCheckInterval = 0.2; // del-time step to prevent leaping over obstacles and printing
+float Param::goalRadiusMultiplier = 0.6; // threshold multplier which triggers the largest timestep
+float Param::highestThreshold = 12;
+
 //    static  std::vector<float> intervalVector; // vector containing these smaller intervals
 
 // heuristic related elements
@@ -47,6 +50,40 @@ void Param::loadStaticVariables(){
 //    rWheel = 1; // wheel radius
 //    tGauge = 1;
 }
+
+void Param::tuneHeuristicElements(float _lowerLimit, float _upperLimit){
+
+}
+
+void Param::tuneTimeElements(){
+
+}
+
+void Param::tuneVelocityElements(){
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 } // end of cpp file

@@ -37,30 +37,9 @@ public:
 
     static RobotPose goalPose;
 
-//    static constexpr float rWheel = 1; // wheel radius
-//    static constexpr float tGauge = 1; // track gauge
-
-    // wheel velocity terms (rad/sec)
-//    static constexpr float wheelVelocityMax = 5; // max angular velocity for any wheel
-//    static constexpr float wheelVelocityMin = -5; // min angular velocity for any wheel
-//    static constexpr float wheelVelocityTolerance = 0.5; // angular velocity tolerance to be used in comparison
-//    static constexpr float velocityIncrementLimit = 2; // limit of +-rightWheelVel and leftWheelVel from current state
-//    static constexpr float velocityIncrementStep = 0.5;
-
-    // time related elements
-//    static constexpr float bigTimeStep = 2; // largest time step
-//    static constexpr int intervalCount = 4; // number of smaller intervals into which big time step is broken
+    static float goalRadius;
+    static std::vector<float> radiusRegionLimitVector; // vector containing the heuristic distance limits for determining the timestep
     static std::vector<float> intervalVector; // vector containing these smaller intervals
-
-    // heuristic related elements
-//    static constexpr float force = 1;
-//    static constexpr float moment = 2;
-//    static constexpr float mass = 1;
-//    static constexpr float inertia = 1;
-
-//    static constexpr float straightSpinWeight = 1;
-//    static constexpr float thetaSpinWeight = 1;
-
     static float KEFinal;
 
     // construtor
@@ -137,6 +116,7 @@ public:
 
     bool isChildHealthy(const RobotPose &_parent, Position _tempChildPosition);
 
+    void fillRadiusRegionLimitVector();
 
 };
 }

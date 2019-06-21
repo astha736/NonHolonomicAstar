@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 //    ecn::Astar(beginRobotPose, endRobotPoseMaze);
 
     // save final image
-     Point::maze.saveSolution("maze_vt_health_36_21_Pby2");
+     Point::maze.saveSolution("maze_test");
     cv::waitKey(0);
 
 }
