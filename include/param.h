@@ -44,6 +44,11 @@ public:
     static  float mass;
     static  float inertia;
 
+    static  float thetaSpinWeight;
+    static  float straightSpinWeight;
+
+
+
     static void loadStaticVariables();
 
 };

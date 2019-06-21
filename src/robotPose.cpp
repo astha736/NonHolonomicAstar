@@ -78,13 +78,6 @@ bool RobotPose::validPathPosition(const RobotPose &_startPosition, Position _tem
 
     //NOTE: _time represents the time elapsed from start pos
     float timeIndex = 0;
-// <<<<<<< HEAD
-//     while(timeIndex < _timeStep){
-//         timeIndex = timeIndex + Param::obstacleCheckInterval;
-//         tempPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
-//         if(!tempPosition.isFree()) return false;
-// =======
-    // returns false if either the possible child position is blocked OR if the path to that child is blocked
     if(!_tempChildPosition.isFree()){
         return false;
     }
@@ -94,9 +87,22 @@ bool RobotPose::validPathPosition(const RobotPose &_startPosition, Position _tem
             _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
             if(!_tempChildPosition.isFree()) return false;
         }
-// >>>>>>> modified validPathPosition
     }
+    else{
+        while(timeIndex < _timeStep){
+            timeIndex = timeIndex + obstacleCheckInterval;
+            _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
+            if(!_tempChildPosition.isFree()) return false;
+        }
+    }
+    else{
+        while(timeIndex < _timeStep){
+            timeIndex = timeIndex + Param::obstacleCheckInterval;
+            _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
+            if(!_tempChildPosition.isFree()) return false;
+        }
     return true;
+}
 }
 
 Position RobotPose::getNewStepPosition(const RobotPose &_startPosition, pair<float,float> _linVel_angVel, float _time ){
@@ -255,19 +261,6 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
          Position tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
         
          //step3. check if the child node is free(valid) or not
-// <<<<<<< HEAD
-//          if(!validPathPosition(*this,tempVelWheel, tempTimeStep)){ // check with smaller timestep if not free
-// //             while(tempTimeIndex < ( Param::intervalCount - 1) && !validPathPosition(*this,tempVelWheel, tempTimeStep)){
-// //                tempTimeIndex = tempTimeIndex + 1;
-// //                tempTimeStep = intervalVector[tempTimeIndex];
-// //             }
-// //             if(!validPathPosition(*this,tempVelWheel, tempTimeStep)){
-// //                 continue;
-// //             }
-// //             else{
-// //                 tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
-// //             }
-// =======
          if(!validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){ // check with smaller timestep if not free
              while(tempTimeIndex < (intervalCount - 1) && !validPathPosition(*this,tempChildPosition,tempVelWheel, tempTimeStep)){
                 tempTimeIndex = tempTimeIndex + 1;
@@ -279,7 +272,6 @@ std::vector<RobotPose::RobotPosePtr> RobotPose::children()
              else{
                  tempChildPosition = getNewStepPosition(*this,tempVelWheel, tempTimeStep);
              }
-// >>>>>>> modified validPathPosition
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

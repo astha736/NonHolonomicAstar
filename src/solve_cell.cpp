@@ -23,7 +23,7 @@ int main( int argc, char **argv )
     float leftVelBegin = 0, leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze.png";
+    std::string filename = "maze_basic_2.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
