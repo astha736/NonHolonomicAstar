@@ -88,19 +88,6 @@ bool RobotPose::validPathPosition(const RobotPose &_startPosition, Position _tem
             if(!_tempChildPosition.isFree()) return false;
         }
     }
-    else{
-        while(timeIndex < _timeStep){
-            timeIndex = timeIndex + obstacleCheckInterval;
-            _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
-            if(!_tempChildPosition.isFree()) return false;
-        }
-    }
-    else{
-        while(timeIndex < _timeStep){
-            timeIndex = timeIndex + Param::obstacleCheckInterval;
-            _tempChildPosition = getNewStepPosition(_startPosition, _linVel_angVel, timeIndex);
-            if(!_tempChildPosition.isFree()) return false;
-        }
     return true;
 }
 }
