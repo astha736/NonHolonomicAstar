@@ -15,14 +15,14 @@ using namespace ecn;
 int main( int argc, char **argv )
 {
 
-    float x_begin = 1, y_begin = 1, thetaBegin = 0;
-    float x_end = 36,  y_end = 21,  thetaEnd = M_PI/2 ;
+    float x_begin = 0, y_begin = 0, thetaBegin = 0;
+    float x_end = 50,  y_end = 25,  thetaEnd = M_PI/2 ;
 
     float rightVelBegin = 0, rightVelEnd = 0;
     float leftVelBegin = 0, leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze.png";
+    std::string filename = "maze_basic_2.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
