@@ -68,6 +68,11 @@ void Position::show(bool _closed, const Position & _parent)
     Point::maze.write(floor(x), floor(y), r, 0, b);
 }
 
+float Position::euclideanDist(Position _other){
+    float euclideanDistSquare = pow(this->x - _other.x,2)+pow(this->y - _other.y,2);
+    return pow(euclideanDistSquare,0.5);
+}
+
 } // end of cpp file
 
 

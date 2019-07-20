@@ -8,6 +8,7 @@
 #include <queue>
 #include <chrono>
 #include <memory>
+#include <tune.h>
 
 namespace ecn
 {
@@ -79,7 +80,7 @@ void reconstructPath(PtrMap<T> &come_from, T* best, int dist)
 //templated version of A* algorithm Astar(Position::maze.start() start, Position::maze.end() goal)
 // where maze is a static variable of class Position(Point) of type Maze(class Maze)
 template<class T>
-void Astar(T start, T goal)
+void Astar(T start, T goal, bool useTuning=false, int bestTuningLimit = 1000)
 {
     // check if we should display during A*
     std::ifstream config("../config.txt", std::ios::in);
@@ -164,11 +165,20 @@ void Astar(T start, T goal)
     if(show)
         start.start();
 
-    int evaluated = 0, created = 0, shortcut = 0;
+    int evaluated = 0, created = 0, shortcut = 0, explored = 0;
     evaluated++;
     while(!queue.empty())
     {
         auto best = queue.top();
+
+        explored++;
+        if(useTuning == true){
+            // if the explored is above limit, then break from the main
+            if (bestTuningLimit < explored){
+                Tune::setTuningResults(*best.elem, start, goal);
+                break;}
+        }
+
 //        std::cout << "best: " << *best.elem << std::endl;
 //        std::cout << best.f << std::endl;
 //        std::cout << best.g << std::endl;

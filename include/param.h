@@ -57,10 +57,10 @@ public:
     // methods
     static void loadStaticVariables();
 
-    // tuning methods
-    static void tuneHeuristicElements(float _lowerLimit, float _upperLimit);
-    static void tuneTimeElements();
-    static void tuneVelocityElements();
+//    // tuning methods
+//    static void tuneHeuristicElements(float _lowerLimit, float _upperLimit);
+//    static void tuneTimeElements();
+//    static void tuneVelocityElements();
 
 
 

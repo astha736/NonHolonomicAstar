@@ -91,6 +91,7 @@ namespace ecn
                 return ((2.0*M_PI) - remainder(abs(_theta),(2.0*M_PI)));
             }
         }
+        float euclideanDist(Position _other);
 
     };
 }

@@ -6,20 +6,14 @@ shape = (200,200,1)
 #maze = np.ones(shape)
 maze = np.full(shape, 255)
 
-obstacleShapeOne = (150,100,1)
-obstacleShapeOne = np.zeros(obstacleShapeOne)
+obstacleShape = (150,100,1)
+obstacle = np.zeros(obstacleShape)
 #obstacle = np.zeros(obstacleShape)
 
-r1, c1 = 25, 25
+r, c = 25, 25
 
 # assigns the part of the maze image as obstracle 
-maze[r1:r1+obstacleShapeOne.shape[0], c1:c1+obstacleShapeOne.shape[1],:] = obstacleShapeOne
-
-obstacleShapeTwo = (50,50,1)
-obstacleShapeTwo = np.zeros(obstacleShapeTwo)
-
-r2, c2 = 125, 125
-maze[r2:r2+obstacleShapeTwo.shape[0], c2:c2+obstacleShapeTwo.shape[1],:] = obstacleShapeTwo
+maze[r:r+obstacle.shape[0], c:c+obstacle.shape[1],:] = obstacle
 
 # Mat b = cv.fromarray(maze)
 

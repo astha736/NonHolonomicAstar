@@ -25,7 +25,7 @@ float Param::velocityIncrementStep = 0.5;
 
 
 // time related elements
-float Param::bigTimeStep = 2; // largest time step
+float Param::bigTimeStep = 4; // largest time step
 int   Param::intervalCount = 4; // number of smaller intervals into which big time step is broken
 float Param::obstacleCheckInterval = 0.2; // del-time step to prevent leaping over obstacles and printing
 float Param::goalRadiusMultiplier = 0.6; // threshold multplier which triggers the largest timestep
@@ -39,8 +39,9 @@ float Param::moment = 2;
 float Param::mass = 1;
 float Param::inertia = 1;
 
-float Param::straightSpinWeight = 1;
-float Param::thetaSpinWeight = 1;
+float Param::thetaSpinWeight = 1; // 0.2
+float Param::straightSpinWeight = 1; // 0.9
+
 
 float Param::childHealthLimit = 1.05;
 
@@ -51,17 +52,17 @@ void Param::loadStaticVariables(){
 //    tGauge = 1;
 }
 
-void Param::tuneHeuristicElements(float _lowerLimit, float _upperLimit){
+//void Param::tuneHeuristicElements(float _lowerLimit, float _upperLimit){
 
-}
+//}
 
-void Param::tuneTimeElements(){
+//void Param::tuneTimeElements(){
 
-}
+//}
 
-void Param::tuneVelocityElements(){
+//void Param::tuneVelocityElements(){
 
-}
+//}
 
 
 

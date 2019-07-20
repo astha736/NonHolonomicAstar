@@ -4,6 +4,8 @@
 
 #include <robotPose.h>
 #include <position.h>
+#include <param.h>
+#include <tune.h>
 
 using namespace std;
 using namespace ecn;
@@ -15,14 +17,14 @@ using namespace ecn;
 int main( int argc, char **argv )
 {
 
-    float x_begin = 0, y_begin = 0, thetaBegin = 0;
-    float x_end = 50,  y_end = 25,  thetaEnd = M_PI/2 ;
+    float x_begin = 1, y_begin = 1, thetaBegin = 0;
+    float x_end = 40,  y_end = 2,  thetaEnd = M_PI/2;
 
     float rightVelBegin = 0, rightVelEnd = 0;
     float leftVelBegin = 0, leftVelEnd = 0;
 
     // load file
-    std::string filename = "maze_basic_2.png";
+    std::string filename = "maze.png";
     if(argc == 2)
         filename = std::string(argv[1]);
 
@@ -57,13 +59,47 @@ int main( int argc, char **argv )
         return 0;
     }
 
-    //    cout << Point::maze.isFree(x_end,y_end) << std::endl;
-
+///////////////////////// run normal A* ////////////////////////////
     ecn::Astar(beginRobotPose, endRobotPose);
-//    ecn::Astar(beginRobotPose, endRobotPoseMaze);
 
     // save final image
-     Point::maze.saveSolution("maze_test");
+    Point::maze.saveSolution("smalltest");
     cv::waitKey(0);
+
+//////////////////////////////// Code to tune the parameters /////////////////////////////////////////
+//        // step1. for a give start and end make a list of set parameters
+//        std::vector<pair<float, float>> paramSetList =  Tune::generateTuningSet();
+//        std::vector<float> heuristicSetList;
+//        // step2. for each element in the set, run the Astar with true values
+//        for(int i =0; i < paramSetList.size(); i++){
+//            std::cout << "generateTuningset: " << i << " : " << paramSetList[i].first << " : " << paramSetList[i].second << std::endl;
+//            Param::thetaSpinWeight = paramSetList[i].first;
+//            Param::straightSpinWeight = paramSetList[i].second;
+//            ecn::Astar(beginRobotPose, endRobotPose, true);
+//            if(Tune::validResultSet == true){
+//                heuristicSetList.push_back(Tune::resultTuneHeuristic);
+//                Tune::validResultSet = false;
+//            }
+//            else{
+//                std::cout << "Some error Param::resultTuneHeuristic = FLT_MAX" << std::endl;
+//            }
+
+//        }
+//        // step3. based on the list of heuristic collected, print the best choices
+//        float minHeuristic = FLT_MAX;
+//        int minHIndex = heuristicSetList.size();
+//        for(int i =0; i < heuristicSetList.size(); i++){
+//            std::cout << "generateTuningset: " << paramSetList[i].first << " : " << paramSetList[i].second << std::endl;
+//            std::cout << "EuclideanDist " << heuristicSetList[i] << std::endl;
+//            if(minHeuristic > heuristicSetList[i]){
+//                minHeuristic = heuristicSetList[i];
+//                minHIndex = i;
+//            }
+//        }
+
+////        std::cout << "********************* Finally ***************" << std::endl;
+////        std::cout << "weight theta: " << paramSetList[minHIndex].first << std::endl;
+////        std::cout << "weight straight " << paramSetList[minHIndex].second << std::endl;
+////        std::cout << "minHeuristic " << heuristicSetList[minHIndex] << std::endl;
 
 }
